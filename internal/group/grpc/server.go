@@ -17,13 +17,13 @@ import (
 // GroupServer represents the group gRPC server
 type GroupServer struct {
 	grouppb.UnimplementedGroupServiceServer
-	groupService service.GroupService
+	svc service.GroupService
 }
 
 // NewGroupServer creates a new group gRPC server
-func NewGroupServer(groupService service.GroupService) *GroupServer {
+func NewGroupServer(service service.GroupService) *GroupServer {
 	return &GroupServer{
-		groupService: groupService,
+		svc: service,
 	}
 }
 
@@ -35,7 +35,7 @@ func (s *GroupServer) GetGroupInfo(ctx context.Context, req *grouppb.GetGroupInf
 	if req.UserId != nil {
 		userID = *req.UserId
 	}
-	resp, err := s.groupService.GetGroupInfo(ctx, userID, req.GroupId)
+	resp, err := s.svc.GetGroupInfo(ctx, userID, req.GroupId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -69,7 +69,7 @@ func (s *GroupServer) GetGroupMembers(ctx context.Context, req *grouppb.GetGroup
 		pageSize = 20
 	}
 
-	resp, err := s.groupService.GetGroupMembers(ctx, req.UserId, req.GroupId, page, pageSize)
+	resp, err := s.svc.GetGroupMembers(ctx, req.UserId, req.GroupId, page, pageSize)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -106,7 +106,7 @@ func (s *GroupServer) GetGroupMembers(ctx context.Context, req *grouppb.GetGroup
 
 // IsMember checks if user is group member
 func (s *GroupServer) IsMember(ctx context.Context, req *grouppb.IsMemberRequest) (*grouppb.IsMemberResponse, error) {
-	isMember, role, err := s.groupService.IsMember(ctx, req.GroupId, req.UserId)
+	isMember, role, err := s.svc.IsMember(ctx, req.GroupId, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -124,7 +124,7 @@ func (s *GroupServer) GetUserGroups(ctx context.Context, req *grouppb.GetUserGro
 		lastUpdateTime = req.LastUpdateTime
 	}
 
-	resp, err := s.groupService.GetUserGroups(ctx, req.UserId, lastUpdateTime)
+	resp, err := s.svc.GetUserGroups(ctx, req.UserId, lastUpdateTime)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -163,7 +163,7 @@ func (s *GroupServer) CreateGroup(ctx context.Context, req *grouppb.CreateGroupR
 	}
 
 	// Call service layer
-	resp, err := s.groupService.CreateGroup(ctx, req.UserId, dtoReq)
+	resp, err := s.svc.CreateGroup(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -189,7 +189,7 @@ func (s *GroupServer) UpdateGroup(ctx context.Context, req *grouppb.UpdateGroupR
 	}
 
 	// Call service layer
-	err := s.groupService.UpdateGroup(ctx, req.UserId, req.GroupId, dtoReq)
+	err := s.svc.UpdateGroup(ctx, req.UserId, req.GroupId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -199,7 +199,7 @@ func (s *GroupServer) UpdateGroup(ctx context.Context, req *grouppb.UpdateGroupR
 
 // DissolveGroup dissolves a group
 func (s *GroupServer) DissolveGroup(ctx context.Context, req *grouppb.DissolveGroupRequest) (*commonpb.Empty, error) {
-	err := s.groupService.DissolveGroup(ctx, req.UserId, req.GroupId)
+	err := s.svc.DissolveGroup(ctx, req.UserId, req.GroupId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -215,7 +215,7 @@ func (s *GroupServer) InviteMembers(ctx context.Context, req *grouppb.InviteMemb
 	}
 
 	// Call service layer
-	err := s.groupService.InviteMembers(ctx, req.UserId, req.GroupId, dtoReq)
+	err := s.svc.InviteMembers(ctx, req.UserId, req.GroupId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -225,7 +225,7 @@ func (s *GroupServer) InviteMembers(ctx context.Context, req *grouppb.InviteMemb
 
 // RemoveMember removes a member
 func (s *GroupServer) RemoveMember(ctx context.Context, req *grouppb.RemoveMemberRequest) (*commonpb.Empty, error) {
-	err := s.groupService.RemoveMember(ctx, req.UserId, req.GroupId, req.TargetUserId)
+	err := s.svc.RemoveMember(ctx, req.UserId, req.GroupId, req.TargetUserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -235,7 +235,7 @@ func (s *GroupServer) RemoveMember(ctx context.Context, req *grouppb.RemoveMembe
 
 // QuitGroup quits a group
 func (s *GroupServer) QuitGroup(ctx context.Context, req *grouppb.QuitGroupRequest) (*commonpb.Empty, error) {
-	err := s.groupService.QuitGroup(ctx, req.UserId, req.GroupId)
+	err := s.svc.QuitGroup(ctx, req.UserId, req.GroupId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -251,7 +251,7 @@ func (s *GroupServer) UpdateMemberRole(ctx context.Context, req *grouppb.UpdateM
 	}
 
 	// Call service layer
-	err := s.groupService.UpdateMemberRole(ctx, req.UserId, req.GroupId, req.TargetUserId, dtoReq)
+	err := s.svc.UpdateMemberRole(ctx, req.UserId, req.GroupId, req.TargetUserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -267,7 +267,7 @@ func (s *GroupServer) UpdateMemberNickname(ctx context.Context, req *grouppb.Upd
 	}
 
 	// Call service layer
-	err := s.groupService.UpdateMemberNickname(ctx, req.UserId, req.GroupId, dtoReq)
+	err := s.svc.UpdateMemberNickname(ctx, req.UserId, req.GroupId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -277,7 +277,7 @@ func (s *GroupServer) UpdateMemberNickname(ctx context.Context, req *grouppb.Upd
 
 // TransferOwnership transfers ownership
 func (s *GroupServer) TransferOwnership(ctx context.Context, req *grouppb.TransferOwnershipRequest) (*commonpb.Empty, error) {
-	err := s.groupService.TransferOwnership(ctx, req.UserId, req.GroupId, req.NewOwnerId)
+	err := s.svc.TransferOwnership(ctx, req.UserId, req.GroupId, req.NewOwnerId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -294,7 +294,7 @@ func (s *GroupServer) JoinGroup(ctx context.Context, req *grouppb.JoinGroupReque
 	}
 
 	// Call service layer
-	resp, err := s.groupService.JoinGroup(ctx, req.UserId, req.GroupId, dtoReq)
+	resp, err := s.svc.JoinGroup(ctx, req.UserId, req.GroupId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -317,7 +317,7 @@ func (s *GroupServer) HandleJoinRequest(ctx context.Context, req *grouppb.Handle
 	}
 
 	// Call service layer
-	err := s.groupService.HandleJoinRequest(ctx, req.UserId, req.RequestId, dtoReq)
+	err := s.svc.HandleJoinRequest(ctx, req.UserId, req.RequestId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -333,7 +333,7 @@ func (s *GroupServer) GetJoinRequests(ctx context.Context, req *grouppb.GetJoinR
 		status = &v
 	}
 
-	resp, err := s.groupService.GetJoinRequests(ctx, req.UserId, req.GroupId, status)
+	resp, err := s.svc.GetJoinRequests(ctx, req.UserId, req.GroupId, status)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -370,7 +370,7 @@ func (s *GroupServer) GetJoinRequests(ctx context.Context, req *grouppb.GetJoinR
 
 // PinGroupMessage pins a message
 func (s *GroupServer) PinGroupMessage(ctx context.Context, req *grouppb.PinGroupMessageRequest) (*commonpb.Empty, error) {
-	if err := s.groupService.PinGroupMessage(ctx, req.UserId, req.GroupId, req.MessageId); err != nil {
+	if err := s.svc.PinGroupMessage(ctx, req.UserId, req.GroupId, req.MessageId); err != nil {
 		return nil, convertError(err)
 	}
 	return &commonpb.Empty{}, nil
@@ -378,7 +378,7 @@ func (s *GroupServer) PinGroupMessage(ctx context.Context, req *grouppb.PinGroup
 
 // UnpinGroupMessage unpins a message
 func (s *GroupServer) UnpinGroupMessage(ctx context.Context, req *grouppb.UnpinGroupMessageRequest) (*commonpb.Empty, error) {
-	if err := s.groupService.UnpinGroupMessage(ctx, req.UserId, req.GroupId, req.MessageId); err != nil {
+	if err := s.svc.UnpinGroupMessage(ctx, req.UserId, req.GroupId, req.MessageId); err != nil {
 		return nil, convertError(err)
 	}
 	return &commonpb.Empty{}, nil
@@ -386,7 +386,7 @@ func (s *GroupServer) UnpinGroupMessage(ctx context.Context, req *grouppb.UnpinG
 
 // GetPinnedMessages gets pinned message list
 func (s *GroupServer) GetPinnedMessages(ctx context.Context, req *grouppb.GetPinnedMessagesRequest) (*grouppb.GetPinnedMessagesResponse, error) {
-	resp, err := s.groupService.GetPinnedMessages(ctx, req.UserId, req.GroupId)
+	resp, err := s.svc.GetPinnedMessages(ctx, req.UserId, req.GroupId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -436,7 +436,7 @@ func (s *GroupServer) GetPinnedMessages(ctx context.Context, req *grouppb.GetPin
 
 // SetGroupMute sets group mute
 func (s *GroupServer) SetGroupMute(ctx context.Context, req *grouppb.SetGroupMuteRequest) (*commonpb.Empty, error) {
-	if err := s.groupService.SetGroupMute(ctx, req.UserId, req.GroupId, req.Enabled); err != nil {
+	if err := s.svc.SetGroupMute(ctx, req.UserId, req.GroupId, req.Enabled); err != nil {
 		return nil, convertError(err)
 	}
 	return &commonpb.Empty{}, nil
@@ -449,7 +449,7 @@ func (s *GroupServer) MuteMember(ctx context.Context, req *grouppb.MuteMemberReq
 		DurationMinutes: req.DurationMinutes,
 	}
 
-	if err := s.groupService.MuteMember(ctx, req.UserId, req.GroupId, req.TargetUserId, dtoReq); err != nil {
+	if err := s.svc.MuteMember(ctx, req.UserId, req.GroupId, req.TargetUserId, dtoReq); err != nil {
 		return nil, convertError(err)
 	}
 	return &commonpb.Empty{}, nil
@@ -457,7 +457,7 @@ func (s *GroupServer) MuteMember(ctx context.Context, req *grouppb.MuteMemberReq
 
 // UnmuteMember unmutes a member
 func (s *GroupServer) UnmuteMember(ctx context.Context, req *grouppb.UnmuteMemberRequest) (*commonpb.Empty, error) {
-	if err := s.groupService.UnmuteMember(ctx, req.UserId, req.GroupId, req.TargetUserId); err != nil {
+	if err := s.svc.UnmuteMember(ctx, req.UserId, req.GroupId, req.TargetUserId); err != nil {
 		return nil, convertError(err)
 	}
 	return &commonpb.Empty{}, nil
@@ -475,7 +475,7 @@ func (s *GroupServer) UpdateGroupSettings(ctx context.Context, req *grouppb.Upda
 	}
 
 	// Call service layer
-	err := s.groupService.UpdateGroupSettings(ctx, req.UserId, req.GroupId, dtoReq)
+	err := s.svc.UpdateGroupSettings(ctx, req.UserId, req.GroupId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -485,7 +485,7 @@ func (s *GroupServer) UpdateGroupSettings(ctx context.Context, req *grouppb.Upda
 
 // GetGroupSettings gets group settings
 func (s *GroupServer) GetGroupSettings(ctx context.Context, req *grouppb.GetGroupSettingsRequest) (*grouppb.GetGroupSettingsResponse, error) {
-	resp, err := s.groupService.GetGroupSettings(ctx, req.GroupId)
+	resp, err := s.svc.GetGroupSettings(ctx, req.GroupId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -503,7 +503,7 @@ func (s *GroupServer) GetGroupSettings(ctx context.Context, req *grouppb.GetGrou
 // UpdateMemberRemark sets/clears remark
 func (s *GroupServer) UpdateMemberRemark(ctx context.Context, req *grouppb.UpdateMemberRemarkRequest) (*commonpb.Empty, error) {
 	dtoReq := &dto.UpdateMemberRemarkRequest{Remark: req.Remark}
-	if err := s.groupService.UpdateMemberRemark(ctx, req.UserId, req.GroupId, dtoReq); err != nil {
+	if err := s.svc.UpdateMemberRemark(ctx, req.UserId, req.GroupId, dtoReq); err != nil {
 		return nil, convertError(err)
 	}
 	return &commonpb.Empty{}, nil
@@ -511,7 +511,7 @@ func (s *GroupServer) UpdateMemberRemark(ctx context.Context, req *grouppb.Updat
 
 // GetGroupQRCode gets group QR code
 func (s *GroupServer) GetGroupQRCode(ctx context.Context, req *grouppb.GetGroupQRCodeRequest) (*grouppb.GetGroupQRCodeResponse, error) {
-	resp, err := s.groupService.GetGroupQRCode(ctx, req.UserId, req.GroupId)
+	resp, err := s.svc.GetGroupQRCode(ctx, req.UserId, req.GroupId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -524,7 +524,7 @@ func (s *GroupServer) GetGroupQRCode(ctx context.Context, req *grouppb.GetGroupQ
 
 // RefreshGroupQRCode refreshes QR code
 func (s *GroupServer) RefreshGroupQRCode(ctx context.Context, req *grouppb.RefreshGroupQRCodeRequest) (*grouppb.GetGroupQRCodeResponse, error) {
-	resp, err := s.groupService.RefreshGroupQRCode(ctx, req.UserId, req.GroupId)
+	resp, err := s.svc.RefreshGroupQRCode(ctx, req.UserId, req.GroupId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -537,7 +537,7 @@ func (s *GroupServer) RefreshGroupQRCode(ctx context.Context, req *grouppb.Refre
 
 // GetGroupPreviewByQRCode gets group preview by QR code
 func (s *GroupServer) GetGroupPreviewByQRCode(ctx context.Context, req *grouppb.GetGroupPreviewByQRCodeRequest) (*grouppb.GetGroupPreviewByQRCodeResponse, error) {
-	resp, err := s.groupService.GetGroupPreviewByQRCode(ctx, req.Token)
+	resp, err := s.svc.GetGroupPreviewByQRCode(ctx, req.Token)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -552,7 +552,7 @@ func (s *GroupServer) GetGroupPreviewByQRCode(ctx context.Context, req *grouppb.
 
 // JoinGroupByQRCode joins group by QR code
 func (s *GroupServer) JoinGroupByQRCode(ctx context.Context, req *grouppb.JoinGroupByQRCodeRequest) (*grouppb.JoinGroupByQRCodeResponse, error) {
-	resp, err := s.groupService.JoinGroupByQRCode(ctx, req.UserId, req.Token)
+	resp, err := s.svc.JoinGroupByQRCode(ctx, req.UserId, req.Token)
 	if err != nil {
 		return nil, convertError(err)
 	}

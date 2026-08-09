@@ -6,8 +6,6 @@ import (
 	pushpb "github.com/anychat/server/api/proto/push"
 	"github.com/anychat/server/internal/push/model"
 	"github.com/anychat/server/internal/push/service"
-	"github.com/anychat/server/pkg/logger"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -15,12 +13,12 @@ import (
 // Server Push gRPC server
 type Server struct {
 	pushpb.UnimplementedPushServiceServer
-	pushService service.PushService
+	svc service.PushService
 }
 
 // NewServer creates gRPC server
-func NewServer(pushService service.PushService) *Server {
-	return &Server{pushService: pushService}
+func NewServer(service service.PushService) *Server {
+	return &Server{svc: service}
 }
 
 // SendPush sends push notification to specified user list
@@ -32,7 +30,7 @@ func (s *Server) SendPush(ctx context.Context, req *pushpb.SendPushRequest) (*pu
 		return nil, status.Error(codes.InvalidArgument, "title is required")
 	}
 
-	successCount, failureCount, msgID, err := s.pushService.SendPush(
+	successCount, failureCount, msgID, err := s.svc.SendPush(
 		ctx,
 		req.UserIds,
 		req.Title,
@@ -41,7 +39,6 @@ func (s *Server) SendPush(ctx context.Context, req *pushpb.SendPushRequest) (*pu
 		req.Extras,
 	)
 	if err != nil {
-		logger.Error("SendPush gRPC failed", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

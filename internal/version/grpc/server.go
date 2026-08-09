@@ -13,17 +13,17 @@ import (
 
 type VersionServer struct {
 	versionpb.UnimplementedVersionServiceServer
-	versionService service.VersionService
+	svc service.VersionService
 }
 
-func NewVersionServer(versionService service.VersionService) *VersionServer {
+func NewVersionServer(serice service.VersionService) *VersionServer {
 	return &VersionServer{
-		versionService: versionService,
+		svc: serice,
 	}
 }
 
 func (s *VersionServer) CheckVersion(ctx context.Context, req *versionpb.CheckVersionRequest) (*versionpb.CheckVersionResponse, error) {
-	resp, err := s.versionService.CheckVersion(ctx, req)
+	resp, err := s.svc.CheckVersion(ctx, req)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -31,7 +31,7 @@ func (s *VersionServer) CheckVersion(ctx context.Context, req *versionpb.CheckVe
 }
 
 func (s *VersionServer) GetLatestVersion(ctx context.Context, req *versionpb.GetLatestVersionRequest) (*versionpb.GetLatestVersionResponse, error) {
-	resp, err := s.versionService.GetLatestVersion(ctx, req)
+	resp, err := s.svc.GetLatestVersion(ctx, req)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -39,7 +39,7 @@ func (s *VersionServer) GetLatestVersion(ctx context.Context, req *versionpb.Get
 }
 
 func (s *VersionServer) ListVersions(ctx context.Context, req *versionpb.ListVersionsRequest) (*versionpb.ListVersionsResponse, error) {
-	resp, err := s.versionService.ListVersions(ctx, req)
+	resp, err := s.svc.ListVersions(ctx, req)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -47,7 +47,7 @@ func (s *VersionServer) ListVersions(ctx context.Context, req *versionpb.ListVer
 }
 
 func (s *VersionServer) CreateVersion(ctx context.Context, req *versionpb.CreateVersionRequest) (*versionpb.CreateVersionResponse, error) {
-	resp, err := s.versionService.CreateVersion(ctx, req)
+	resp, err := s.svc.CreateVersion(ctx, req)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -55,7 +55,7 @@ func (s *VersionServer) CreateVersion(ctx context.Context, req *versionpb.Create
 }
 
 func (s *VersionServer) GetVersion(ctx context.Context, req *versionpb.GetVersionRequest) (*versionpb.GetVersionResponse, error) {
-	resp, err := s.versionService.GetVersion(ctx, req)
+	resp, err := s.svc.GetVersion(ctx, req)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -63,7 +63,7 @@ func (s *VersionServer) GetVersion(ctx context.Context, req *versionpb.GetVersio
 }
 
 func (s *VersionServer) DeleteVersion(ctx context.Context, req *versionpb.DeleteVersionRequest) (*commonpb.Empty, error) {
-	err := s.versionService.DeleteVersion(ctx, req)
+	err := s.svc.DeleteVersion(ctx, req)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -71,7 +71,7 @@ func (s *VersionServer) DeleteVersion(ctx context.Context, req *versionpb.Delete
 }
 
 func (s *VersionServer) ReportVersion(ctx context.Context, req *versionpb.ReportVersionRequest) (*commonpb.Empty, error) {
-	err := s.versionService.ReportVersion(ctx, req)
+	err := s.svc.ReportVersion(ctx, req)
 	if err != nil {
 		return nil, convertError(err)
 	}

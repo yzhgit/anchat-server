@@ -16,13 +16,13 @@ import (
 // FileServer gRPC server
 type FileServer struct {
 	filepb.UnimplementedFileServiceServer
-	fileService service.FileService
+	svc service.FileService
 }
 
 // NewFileServer creates gRPC server
-func NewFileServer(fileService service.FileService) *FileServer {
+func NewFileServer(service service.FileService) *FileServer {
 	return &FileServer{
-		fileService: fileService,
+		svc: service,
 	}
 }
 
@@ -36,7 +36,7 @@ func (s *FileServer) GenerateUploadToken(ctx context.Context, req *filepb.Genera
 		ExpiresHours: req.ExpiresHours,
 	}
 
-	resp, err := s.fileService.GenerateUploadToken(ctx, req.UserId, dtoReq)
+	resp, err := s.svc.GenerateUploadToken(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -50,7 +50,7 @@ func (s *FileServer) GenerateUploadToken(ctx context.Context, req *filepb.Genera
 
 // CompleteUpload completes upload
 func (s *FileServer) CompleteUpload(ctx context.Context, req *filepb.CompleteUploadRequest) (*filepb.FileInfo, error) {
-	resp, err := s.fileService.CompleteUpload(ctx, req.FileId, req.UserId)
+	resp, err := s.svc.CompleteUpload(ctx, req.FileId, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -60,7 +60,7 @@ func (s *FileServer) CompleteUpload(ctx context.Context, req *filepb.CompleteUpl
 
 // GenerateDownloadURL generates download URL
 func (s *FileServer) GenerateDownloadURL(ctx context.Context, req *filepb.GenerateDownloadURLRequest) (*filepb.GenerateDownloadURLResponse, error) {
-	resp, err := s.fileService.GenerateDownloadURL(ctx, req.FileId, req.UserId, req.ExpiresMinutes)
+	resp, err := s.svc.GenerateDownloadURL(ctx, req.FileId, req.UserId, req.ExpiresMinutes)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -79,7 +79,7 @@ func (s *FileServer) GenerateDownloadURL(ctx context.Context, req *filepb.Genera
 
 // GetFileInfo gets file info
 func (s *FileServer) GetFileInfo(ctx context.Context, req *filepb.GetFileInfoRequest) (*filepb.FileInfo, error) {
-	resp, err := s.fileService.GetFileInfo(ctx, req.FileId, req.UserId)
+	resp, err := s.svc.GetFileInfo(ctx, req.FileId, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -89,7 +89,7 @@ func (s *FileServer) GetFileInfo(ctx context.Context, req *filepb.GetFileInfoReq
 
 // DeleteFile deletes file
 func (s *FileServer) DeleteFile(ctx context.Context, req *filepb.DeleteFileRequest) (*filepb.DeleteFileResponse, error) {
-	err := s.fileService.DeleteFile(ctx, req.FileId, req.UserId)
+	err := s.svc.DeleteFile(ctx, req.FileId, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -106,7 +106,7 @@ func (s *FileServer) ListUserFiles(ctx context.Context, req *filepb.ListUserFile
 		v := model.FileType(*req.FileType)
 		fileType = &v
 	}
-	resp, err := s.fileService.ListUserFiles(ctx, req.UserId, fileType, int(req.Page), int(req.PageSize))
+	resp, err := s.svc.ListUserFiles(ctx, req.UserId, fileType, int(req.Page), int(req.PageSize))
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -126,7 +126,7 @@ func (s *FileServer) ListUserFiles(ctx context.Context, req *filepb.ListUserFile
 
 // BatchGetFileInfo batch gets file info
 func (s *FileServer) BatchGetFileInfo(ctx context.Context, req *filepb.BatchGetFileInfoRequest) (*filepb.BatchGetFileInfoResponse, error) {
-	resp, err := s.fileService.BatchGetFileInfo(ctx, req.FileIds, req.UserId)
+	resp, err := s.svc.BatchGetFileInfo(ctx, req.FileIds, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}

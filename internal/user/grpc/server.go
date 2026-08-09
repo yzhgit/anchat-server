@@ -17,19 +17,19 @@ import (
 // UserServer user gRPC server
 type UserServer struct {
 	userpb.UnimplementedUserServiceServer
-	userService service.UserService
+	svc service.UserService
 }
 
 // NewUserServer creates user gRPC server
-func NewUserServer(userService service.UserService) *UserServer {
+func NewUserServer(service service.UserService) *UserServer {
 	return &UserServer{
-		userService: userService,
+		svc: service,
 	}
 }
 
 // GetProfile retrieves personal profile
 func (s *UserServer) GetProfile(ctx context.Context, req *userpb.GetProfileRequest) (*userpb.UserProfileResponse, error) {
-	resp, err := s.userService.GetProfile(ctx, req.UserId)
+	resp, err := s.svc.GetProfile(ctx, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -83,7 +83,7 @@ func (s *UserServer) UpdateProfile(ctx context.Context, req *userpb.UpdateProfil
 		dtoReq.Region = req.Region
 	}
 
-	resp, err := s.userService.UpdateProfile(ctx, req.UserId, dtoReq)
+	resp, err := s.svc.UpdateProfile(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -114,7 +114,7 @@ func (s *UserServer) UpdateProfile(ctx context.Context, req *userpb.UpdateProfil
 
 // GetUserInfo retrieves user info
 func (s *UserServer) GetUserInfo(ctx context.Context, req *userpb.GetUserInfoRequest) (*userpb.UserInfoResponse, error) {
-	resp, err := s.userService.GetUserInfo(ctx, req.UserId, req.TargetUserId)
+	resp, err := s.svc.GetUserInfo(ctx, req.UserId, req.TargetUserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -139,7 +139,7 @@ func (s *UserServer) SearchUsers(ctx context.Context, req *userpb.SearchUsersReq
 		PageSize: int(req.PageSize),
 	}
 
-	resp, err := s.userService.SearchUsers(ctx, dtoReq)
+	resp, err := s.svc.SearchUsers(ctx, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -162,7 +162,7 @@ func (s *UserServer) SearchUsers(ctx context.Context, req *userpb.SearchUsersReq
 
 // GetSettings retrieves user settings
 func (s *UserServer) GetSettings(ctx context.Context, req *userpb.GetSettingsRequest) (*userpb.UserSettingsResponse, error) {
-	resp, err := s.userService.GetSettings(ctx, req.UserId)
+	resp, err := s.svc.GetSettings(ctx, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -209,7 +209,7 @@ func (s *UserServer) UpdateSettings(ctx context.Context, req *userpb.UpdateSetti
 		dtoReq.Language = req.Language
 	}
 
-	resp, err := s.userService.UpdateSettings(ctx, req.UserId, dtoReq)
+	resp, err := s.svc.UpdateSettings(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -229,7 +229,7 @@ func (s *UserServer) UpdateSettings(ctx context.Context, req *userpb.UpdateSetti
 
 // RefreshQRCode refreshes QR code
 func (s *UserServer) RefreshQRCode(ctx context.Context, req *userpb.RefreshQRCodeRequest) (*userpb.QRCodeResponse, error) {
-	resp, err := s.userService.RefreshQRCode(ctx, req.UserId)
+	resp, err := s.svc.RefreshQRCode(ctx, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -242,7 +242,7 @@ func (s *UserServer) RefreshQRCode(ctx context.Context, req *userpb.RefreshQRCod
 
 // GetUserByQRCode retrieves user by QR code
 func (s *UserServer) GetUserByQRCode(ctx context.Context, req *userpb.GetUserByQRCodeRequest) (*userpb.UserInfoResponse, error) {
-	resp, err := s.userService.GetUserByQRCode(ctx, req.Qrcode)
+	resp, err := s.svc.GetUserByQRCode(ctx, req.Qrcode)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -263,7 +263,7 @@ func (s *UserServer) UpdatePushToken(ctx context.Context, req *userpb.UpdatePush
 		Platform:  model.PushPlatform(req.Platform),
 	}
 
-	err := s.userService.UpdatePushToken(ctx, req.UserId, dtoReq)
+	err := s.svc.UpdatePushToken(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -273,7 +273,7 @@ func (s *UserServer) UpdatePushToken(ctx context.Context, req *userpb.UpdatePush
 
 // BindPhone binds phone number
 func (s *UserServer) BindPhone(ctx context.Context, req *userpb.BindPhoneRequest) (*userpb.BindPhoneResponse, error) {
-	resp, err := s.userService.BindPhone(ctx, req.UserId, &dto.BindPhoneRequest{
+	resp, err := s.svc.BindPhone(ctx, req.UserId, &dto.BindPhoneRequest{
 		PhoneNumber: req.PhoneNumber,
 		VerifyCode:  req.VerifyCode,
 	})
@@ -299,7 +299,7 @@ func (s *UserServer) ChangePhone(ctx context.Context, req *userpb.ChangePhoneReq
 		dtoReq.OldVerifyCode = req.OldVerifyCode
 	}
 
-	resp, err := s.userService.ChangePhone(ctx, req.UserId, dtoReq)
+	resp, err := s.svc.ChangePhone(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -312,7 +312,7 @@ func (s *UserServer) ChangePhone(ctx context.Context, req *userpb.ChangePhoneReq
 
 // BindEmail binds email
 func (s *UserServer) BindEmail(ctx context.Context, req *userpb.BindEmailRequest) (*userpb.BindEmailResponse, error) {
-	resp, err := s.userService.BindEmail(ctx, req.UserId, &dto.BindEmailRequest{
+	resp, err := s.svc.BindEmail(ctx, req.UserId, &dto.BindEmailRequest{
 		Email:      req.Email,
 		VerifyCode: req.VerifyCode,
 	})
@@ -338,7 +338,7 @@ func (s *UserServer) ChangeEmail(ctx context.Context, req *userpb.ChangeEmailReq
 		dtoReq.OldVerifyCode = req.OldVerifyCode
 	}
 
-	resp, err := s.userService.ChangeEmail(ctx, req.UserId, dtoReq)
+	resp, err := s.svc.ChangeEmail(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -351,7 +351,7 @@ func (s *UserServer) ChangeEmail(ctx context.Context, req *userpb.ChangeEmailReq
 
 // InitUserData initializes user data (called by auth-service)
 func (s *UserServer) InitUserData(ctx context.Context, req *userpb.InitUserDataRequest) (*commonpb.Empty, error) {
-	err := s.userService.InitUserData(ctx, req.UserId, req.Nickname)
+	err := s.svc.InitUserData(ctx, req.UserId, req.Nickname)
 	if err != nil {
 		return nil, convertError(err)
 	}

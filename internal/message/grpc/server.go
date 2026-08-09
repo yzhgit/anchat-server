@@ -20,23 +20,18 @@ const operatorUserIDMetadataKey = "x-user-id"
 // Server Message gRPC server
 type Server struct {
 	messagepb.UnimplementedMessageServiceServer
-	messageService service.MessageService
+	svc service.MessageService
 }
 
 // NewServer creates gRPC server
-func NewServer(messageService service.MessageService) *Server {
+func NewServer(service service.MessageService) *Server {
 	return &Server{
-		messageService: messageService,
+		svc: service,
 	}
 }
 
 // SendMessage sends a message
 func (s *Server) SendMessage(ctx context.Context, req *messagepb.SendMessageRequest) (*messagepb.SendMessageResponse, error) {
-	logger.Info("SendMessage called",
-		zap.String("senderId", req.SenderId),
-		zap.String("conversationId", req.ConversationId),
-		zap.Int32("contentType", int32(req.ContentType)))
-
 	// Parameter validation
 	if req.SenderId == "" {
 		return nil, status.Error(codes.InvalidArgument, "sender_id is required")
@@ -54,9 +49,8 @@ func (s *Server) SendMessage(ctx context.Context, req *messagepb.SendMessageRequ
 		return nil, status.Error(codes.InvalidArgument, "local_id is required")
 	}
 
-	resp, err := s.messageService.SendMessage(ctx, req)
+	resp, err := s.svc.SendMessage(ctx, req)
 	if err != nil {
-		logger.Error("Failed to send message", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -77,8 +71,7 @@ func (s *Server) SendTyping(ctx context.Context, req *messagepb.SendTypingReques
 		return nil, status.Error(codes.InvalidArgument, "from_user_id is required")
 	}
 
-	if err := s.messageService.SendTyping(ctx, req); err != nil {
-		logger.Error("Failed to send typing status", zap.Error(err))
+	if err := s.svc.SendTyping(ctx, req); err != nil {
 		return nil, toStatusError(err)
 	}
 
@@ -96,9 +89,8 @@ func (s *Server) GetMessages(ctx context.Context, req *messagepb.GetMessagesRequ
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
 	}
 
-	resp, err := s.messageService.GetMessages(ctx, req)
+	resp, err := s.svc.GetMessages(ctx, req)
 	if err != nil {
-		logger.Error("Failed to get messages", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -108,11 +100,6 @@ func (s *Server) GetMessages(ctx context.Context, req *messagepb.GetMessagesRequ
 // GetMessagesBefore retrieves messages before anchor message
 func (s *Server) GetMessagesBefore(ctx context.Context, req *messagepb.GetMessagesBeforeRequest) (*messagepb.GetMessagesBeforeResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("GetMessagesBefore called",
-		zap.String("conversationId", req.ConversationId),
-		zap.String("anchorMessageId", req.AnchorMessageId),
-		zap.String("userId", operatorUserID),
-		zap.Int32("limit", req.Limit))
 
 	if req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
@@ -124,9 +111,8 @@ func (s *Server) GetMessagesBefore(ctx context.Context, req *messagepb.GetMessag
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	resp, err := s.messageService.GetMessagesBefore(ctx, operatorUserID, req)
+	resp, err := s.svc.GetMessagesBefore(ctx, operatorUserID, req)
 	if err != nil {
-		logger.Error("Failed to get messages before anchor", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -136,11 +122,6 @@ func (s *Server) GetMessagesBefore(ctx context.Context, req *messagepb.GetMessag
 // GetMessagesAfter retrieves messages after anchor message
 func (s *Server) GetMessagesAfter(ctx context.Context, req *messagepb.GetMessagesAfterRequest) (*messagepb.GetMessagesAfterResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("GetMessagesAfter called",
-		zap.String("conversationId", req.ConversationId),
-		zap.String("anchorMessageId", req.AnchorMessageId),
-		zap.String("userId", operatorUserID),
-		zap.Int32("limit", req.Limit))
 
 	if req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
@@ -152,9 +133,8 @@ func (s *Server) GetMessagesAfter(ctx context.Context, req *messagepb.GetMessage
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	resp, err := s.messageService.GetMessagesAfter(ctx, operatorUserID, req)
+	resp, err := s.svc.GetMessagesAfter(ctx, operatorUserID, req)
 	if err != nil {
-		logger.Error("Failed to get messages after anchor", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -164,12 +144,6 @@ func (s *Server) GetMessagesAfter(ctx context.Context, req *messagepb.GetMessage
 // GetMessagesAroundAnchor retrieves messages around anchor message
 func (s *Server) GetMessagesAroundAnchor(ctx context.Context, req *messagepb.GetMessagesAroundAnchorRequest) (*messagepb.GetMessagesAroundAnchorResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("GetMessagesAroundAnchor called",
-		zap.String("conversationId", req.ConversationId),
-		zap.String("anchorMessageId", req.AnchorMessageId),
-		zap.String("userId", operatorUserID),
-		zap.Int32("before", req.Before),
-		zap.Int32("after", req.After))
 
 	if req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
@@ -181,9 +155,8 @@ func (s *Server) GetMessagesAroundAnchor(ctx context.Context, req *messagepb.Get
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	resp, err := s.messageService.GetMessagesAroundAnchor(ctx, operatorUserID, req)
+	resp, err := s.svc.GetMessagesAroundAnchor(ctx, operatorUserID, req)
 	if err != nil {
-		logger.Error("Failed to get messages around anchor", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -193,9 +166,6 @@ func (s *Server) GetMessagesAroundAnchor(ctx context.Context, req *messagepb.Get
 // GetFirstUnreadAnchor retrieves first unread message anchor
 func (s *Server) GetFirstUnreadAnchor(ctx context.Context, req *messagepb.GetFirstUnreadAnchorRequest) (*messagepb.GetFirstUnreadAnchorResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("GetFirstUnreadAnchor called",
-		zap.String("conversationId", req.ConversationId),
-		zap.String("userId", operatorUserID))
 
 	if req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
@@ -204,9 +174,8 @@ func (s *Server) GetFirstUnreadAnchor(ctx context.Context, req *messagepb.GetFir
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	resp, err := s.messageService.GetFirstUnreadAnchor(ctx, operatorUserID, req)
+	resp, err := s.svc.GetFirstUnreadAnchor(ctx, operatorUserID, req)
 	if err != nil {
-		logger.Error("Failed to get first unread anchor", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -215,16 +184,13 @@ func (s *Server) GetFirstUnreadAnchor(ctx context.Context, req *messagepb.GetFir
 
 // GetMessageById retrieves message by ID
 func (s *Server) GetMessageById(ctx context.Context, req *messagepb.GetMessageByIdRequest) (*messagepb.Message, error) {
-	logger.Info("GetMessageById called", zap.String("messageId", req.MessageId))
-
 	// Parameter validation
 	if req.MessageId == "" {
 		return nil, status.Error(codes.InvalidArgument, "message_id is required")
 	}
 
-	msg, err := s.messageService.GetMessageById(ctx, req.MessageId)
+	msg, err := s.svc.GetMessageById(ctx, req.MessageId)
 	if err != nil {
-		logger.Error("Failed to get message", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -234,9 +200,6 @@ func (s *Server) GetMessageById(ctx context.Context, req *messagepb.GetMessageBy
 // RecallMessage recalls a message
 func (s *Server) RecallMessage(ctx context.Context, req *messagepb.RecallMessageRequest) (*commonpb.Empty, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("RecallMessage called",
-		zap.String("messageId", req.MessageId),
-		zap.String("userId", operatorUserID))
 
 	// Parameter validation
 	if req.MessageId == "" {
@@ -246,9 +209,8 @@ func (s *Server) RecallMessage(ctx context.Context, req *messagepb.RecallMessage
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	err := s.messageService.RecallMessage(ctx, req.MessageId, operatorUserID)
+	err := s.svc.RecallMessage(ctx, req.MessageId, operatorUserID)
 	if err != nil {
-		logger.Error("Failed to recall message", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -258,9 +220,6 @@ func (s *Server) RecallMessage(ctx context.Context, req *messagepb.RecallMessage
 // DeleteMessage deletes a message
 func (s *Server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRequest) (*commonpb.Empty, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("DeleteMessage called",
-		zap.String("messageId", req.MessageId),
-		zap.String("userId", operatorUserID))
 
 	// Parameter validation
 	if req.MessageId == "" {
@@ -270,9 +229,8 @@ func (s *Server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessage
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	err := s.messageService.DeleteMessage(ctx, req.MessageId, operatorUserID)
+	err := s.svc.DeleteMessage(ctx, req.MessageId, operatorUserID)
 	if err != nil {
-		logger.Error("Failed to delete message", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -294,10 +252,6 @@ func getOperatorUserID(ctx context.Context) string {
 // MarkAsRead marks messages as read
 func (s *Server) MarkAsRead(ctx context.Context, req *messagepb.MarkAsReadRequest) (*commonpb.Empty, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("MarkAsRead called",
-		zap.String("conversationId", req.ConversationId),
-		zap.String("userId", operatorUserID),
-		zap.Int64("lastReadSeq", req.LastReadSeq))
 
 	// Parameter validation
 	if req.ConversationId == "" {
@@ -307,9 +261,8 @@ func (s *Server) MarkAsRead(ctx context.Context, req *messagepb.MarkAsReadReques
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	err := s.messageService.MarkAsRead(ctx, operatorUserID, req)
+	err := s.svc.MarkAsRead(ctx, operatorUserID, req)
 	if err != nil {
-		logger.Error("Failed to mark as read", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -319,10 +272,6 @@ func (s *Server) MarkAsRead(ctx context.Context, req *messagepb.MarkAsReadReques
 // MarkMessagesRead marks messages as read by message IDs
 func (s *Server) MarkMessagesRead(ctx context.Context, req *messagepb.MarkMessagesReadRequest) (*messagepb.MarkMessagesReadResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("MarkMessagesRead called",
-		zap.String("conversationId", req.ConversationId),
-		zap.String("userId", operatorUserID),
-		zap.Int("messageCount", len(req.MessageIds)))
 
 	if req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
@@ -334,9 +283,8 @@ func (s *Server) MarkMessagesRead(ctx context.Context, req *messagepb.MarkMessag
 		return &messagepb.MarkMessagesReadResponse{}, nil
 	}
 
-	resp, err := s.messageService.MarkMessagesRead(ctx, operatorUserID, req)
+	resp, err := s.svc.MarkMessagesRead(ctx, operatorUserID, req)
 	if err != nil {
-		logger.Error("Failed to mark messages as read", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -346,9 +294,6 @@ func (s *Server) MarkMessagesRead(ctx context.Context, req *messagepb.MarkMessag
 // AckReadTriggers acknowledges burn-after-reading triggers
 func (s *Server) AckReadTriggers(ctx context.Context, req *messagepb.AckReadTriggersRequest) (*messagepb.AckReadTriggersResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("AckReadTriggers called",
-		zap.String("userId", operatorUserID),
-		zap.Int("eventCount", len(req.Events)))
 
 	if operatorUserID == "" {
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
@@ -357,9 +302,8 @@ func (s *Server) AckReadTriggers(ctx context.Context, req *messagepb.AckReadTrig
 		return &messagepb.AckReadTriggersResponse{}, nil
 	}
 
-	resp, err := s.messageService.AckReadTriggers(ctx, operatorUserID, req)
+	resp, err := s.svc.AckReadTriggers(ctx, operatorUserID, req)
 	if err != nil {
-		logger.Error("Failed to ack read triggers", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -369,9 +313,6 @@ func (s *Server) AckReadTriggers(ctx context.Context, req *messagepb.AckReadTrig
 // GetUnreadCount retrieves unread message count
 func (s *Server) GetUnreadCount(ctx context.Context, req *messagepb.GetUnreadCountRequest) (*messagepb.GetUnreadCountResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("GetUnreadCount called",
-		zap.String("conversationId", req.ConversationId),
-		zap.String("userId", operatorUserID))
 
 	// Parameter validation
 	if req.ConversationId == "" {
@@ -381,9 +322,8 @@ func (s *Server) GetUnreadCount(ctx context.Context, req *messagepb.GetUnreadCou
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	resp, err := s.messageService.GetUnreadCount(ctx, req.ConversationId, operatorUserID, req.LastReadSeq)
+	resp, err := s.svc.GetUnreadCount(ctx, req.ConversationId, operatorUserID, req.LastReadSeq)
 	if err != nil {
-		logger.Error("Failed to get unread count", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -393,9 +333,6 @@ func (s *Server) GetUnreadCount(ctx context.Context, req *messagepb.GetUnreadCou
 // GetReadReceipts retrieves read receipts
 func (s *Server) GetReadReceipts(ctx context.Context, req *messagepb.GetReadReceiptsRequest) (*messagepb.GetReadReceiptsResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("GetReadReceipts called",
-		zap.String("conversationId", req.ConversationId),
-		zap.String("userId", operatorUserID))
 
 	// Parameter validation
 	if req.ConversationId == "" {
@@ -406,9 +343,8 @@ func (s *Server) GetReadReceipts(ctx context.Context, req *messagepb.GetReadRece
 		return nil, status.Error(codes.InvalidArgument, "x-user-id metadata is required")
 	}
 
-	resp, err := s.messageService.GetReadReceipts(ctx, req.ConversationId, operatorUserID)
+	resp, err := s.svc.GetReadReceipts(ctx, req.ConversationId, operatorUserID)
 	if err != nil {
-		logger.Error("Failed to get read receipts", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -417,16 +353,13 @@ func (s *Server) GetReadReceipts(ctx context.Context, req *messagepb.GetReadRece
 
 // GetConversationSequence retrieves conversation sequence
 func (s *Server) GetConversationSequence(ctx context.Context, req *messagepb.GetConversationSequenceRequest) (*messagepb.GetConversationSequenceResponse, error) {
-	logger.Info("GetConversationSequence called", zap.String("conversationId", req.ConversationId))
-
 	// Parameter validation
 	if req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
 	}
 
-	seq, err := s.messageService.GetConversationSequence(ctx, req.ConversationId)
+	seq, err := s.svc.GetConversationSequence(ctx, req.ConversationId)
 	if err != nil {
-		logger.Error("Failed to get conversation sequence", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 
@@ -438,9 +371,6 @@ func (s *Server) GetConversationSequence(ctx context.Context, req *messagepb.Get
 // SearchMessages searches messages
 func (s *Server) SearchMessages(ctx context.Context, req *messagepb.SearchMessagesRequest) (*messagepb.SearchMessagesResponse, error) {
 	operatorUserID := getOperatorUserID(ctx)
-	logger.Info("SearchMessages called",
-		zap.String("userId", operatorUserID),
-		zap.String("keyword", req.Keyword))
 
 	// Parameter validation
 	if operatorUserID == "" {
@@ -453,9 +383,8 @@ func (s *Server) SearchMessages(ctx context.Context, req *messagepb.SearchMessag
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
 	}
 
-	resp, err := s.messageService.SearchMessages(ctx, operatorUserID, req)
+	resp, err := s.svc.SearchMessages(ctx, operatorUserID, req)
 	if err != nil {
-		logger.Error("Failed to search messages", zap.Error(err))
 		return nil, toStatusError(err)
 	}
 

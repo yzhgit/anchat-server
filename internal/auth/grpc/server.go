@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/anychat/server/api/proto/auth"
+	authpb "github.com/anychat/server/api/proto/auth"
 	commonpb "github.com/anychat/server/api/proto/common"
 	"github.com/anychat/server/internal/auth/dto"
 	"github.com/anychat/server/internal/auth/model"
@@ -16,13 +16,13 @@ import (
 // AuthServer auth gRPC server
 type AuthServer struct {
 	authpb.UnimplementedAuthServiceServer
-	authService service.AuthService
+	svc service.AuthService
 }
 
 // NewAuthServer creates auth gRPC server
-func NewAuthServer(authService service.AuthService) *AuthServer {
+func NewAuthServer(service service.AuthService) *AuthServer {
 	return &AuthServer{
-		authService: authService,
+		svc: service,
 	}
 }
 
@@ -45,7 +45,7 @@ func (s *AuthServer) SendVerificationCode(ctx context.Context, req *authpb.SendV
 		IPAddress:  req.IpAddress,
 	}
 
-	resp, err := s.authService.SendVerificationCode(ctx, dtoReq)
+	resp, err := s.svc.SendVerificationCode(ctx, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -82,7 +82,7 @@ func (s *AuthServer) Register(ctx context.Context, req *authpb.RegisterRequest) 
 	}
 
 	// call service layer
-	resp, err := s.authService.Register(ctx, dtoReq)
+	resp, err := s.svc.Register(ctx, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -114,7 +114,7 @@ func (s *AuthServer) Login(ctx context.Context, req *authpb.LoginRequest) (*auth
 	}
 
 	// call service layer
-	resp, err := s.authService.Login(ctx, dtoReq)
+	resp, err := s.svc.Login(ctx, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -152,7 +152,7 @@ func (s *AuthServer) Logout(ctx context.Context, req *authpb.LogoutRequest) (*co
 	}
 
 	// call service layer
-	err := s.authService.Logout(ctx, req.UserId, dtoReq)
+	err := s.svc.Logout(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -168,7 +168,7 @@ func (s *AuthServer) RefreshToken(ctx context.Context, req *authpb.RefreshTokenR
 	}
 
 	// call service layer
-	resp, err := s.authService.RefreshToken(ctx, dtoReq)
+	resp, err := s.svc.RefreshToken(ctx, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -191,7 +191,7 @@ func (s *AuthServer) ChangePassword(ctx context.Context, req *authpb.ChangePassw
 	}
 
 	// call service layer
-	err := s.authService.ChangePassword(ctx, req.UserId, dtoReq)
+	err := s.svc.ChangePassword(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -207,7 +207,7 @@ func (s *AuthServer) ResetPassword(ctx context.Context, req *authpb.ResetPasswor
 		NewPassword: req.NewPassword,
 	}
 
-	err := s.authService.ResetPassword(ctx, dtoReq)
+	err := s.svc.ResetPassword(ctx, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -218,7 +218,7 @@ func (s *AuthServer) ResetPassword(ctx context.Context, req *authpb.ResetPasswor
 // ValidateToken validates token (called by gateway)
 func (s *AuthServer) ValidateToken(ctx context.Context, req *authpb.ValidateTokenRequest) (*authpb.ValidateTokenResponse, error) {
 	// call service layer
-	claims, err := s.authService.ValidateToken(ctx, req.AccessToken)
+	claims, err := s.svc.ValidateToken(ctx, req.AccessToken)
 	if err != nil {
 		return &authpb.ValidateTokenResponse{
 			Valid: false,

@@ -20,8 +20,8 @@ type Server struct {
 }
 
 // NewServer creates a gRPC server
-func NewServer(svc service.CallingService) *Server {
-	return &Server{svc: svc}
+func NewServer(service service.CallingService) *Server {
+	return &Server{svc: service}
 }
 
 func (s *Server) InitiateCall(ctx context.Context, req *callingpb.InitiateCallRequest) (*callingpb.InitiateCallResponse, error) {

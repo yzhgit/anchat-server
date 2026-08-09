@@ -6,8 +6,6 @@ import (
 	commonpb "github.com/anychat/server/api/proto/common"
 	conversationpb "github.com/anychat/server/api/proto/conversation"
 	"github.com/anychat/server/internal/conversation/service"
-	"github.com/anychat/server/pkg/logger"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -15,12 +13,12 @@ import (
 // Server is the Conversation gRPC server
 type Server struct {
 	conversationpb.UnimplementedConversationServiceServer
-	conversationService service.ConversationService
+	svc service.ConversationService
 }
 
 // NewServer creates a new gRPC server
-func NewServer(conversationService service.ConversationService) *Server {
-	return &Server{conversationService: conversationService}
+func NewServer(service service.ConversationService) *Server {
+	return &Server{svc: service}
 }
 
 // GetConversations retrieves the list of user conversations
@@ -28,9 +26,8 @@ func (s *Server) GetConversations(ctx context.Context, req *conversationpb.GetCo
 	if req.UserId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id is required")
 	}
-	resp, err := s.conversationService.GetConversations(ctx, req)
+	resp, err := s.svc.GetConversations(ctx, req)
 	if err != nil {
-		logger.Error("GetConversations failed", zap.String("userID", req.UserId), zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return resp, nil
@@ -41,9 +38,8 @@ func (s *Server) GetConversation(ctx context.Context, req *conversationpb.GetCon
 	if req.UserId == "" || req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id and conversation_id are required")
 	}
-	conversation, err := s.conversationService.GetConversation(ctx, req.UserId, req.ConversationId)
+	conversation, err := s.svc.GetConversation(ctx, req.UserId, req.ConversationId)
 	if err != nil {
-		logger.Error("GetConversation failed", zap.String("conversationID", req.ConversationId), zap.Error(err))
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
 	return conversation, nil
@@ -54,9 +50,8 @@ func (s *Server) CreateOrUpdateConversation(ctx context.Context, req *conversati
 	if req.UserId == "" || req.TargetId == "" || req.ConversationType == conversationpb.ConversationType_CONVERSATION_TYPE_UNSPECIFIED {
 		return nil, status.Error(codes.InvalidArgument, "user_id, target_id and conversation_type are required")
 	}
-	conversation, err := s.conversationService.CreateOrUpdateConversation(ctx, req)
+	conversation, err := s.svc.CreateOrUpdateConversation(ctx, req)
 	if err != nil {
-		logger.Error("CreateOrUpdateConversation failed", zap.String("userID", req.UserId), zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return conversation, nil
@@ -67,8 +62,7 @@ func (s *Server) DeleteConversation(ctx context.Context, req *conversationpb.Del
 	if req.UserId == "" || req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id and conversation_id are required")
 	}
-	if err := s.conversationService.DeleteConversation(ctx, req.UserId, req.ConversationId); err != nil {
-		logger.Error("DeleteConversation failed", zap.String("conversationID", req.ConversationId), zap.Error(err))
+	if err := s.svc.DeleteConversation(ctx, req.UserId, req.ConversationId); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &commonpb.Empty{}, nil
@@ -79,8 +73,7 @@ func (s *Server) SetPinned(ctx context.Context, req *conversationpb.SetPinnedReq
 	if req.UserId == "" || req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id and conversation_id are required")
 	}
-	if err := s.conversationService.SetPinned(ctx, req.UserId, req.ConversationId, req.Pinned); err != nil {
-		logger.Error("SetPinned failed", zap.String("conversationID", req.ConversationId), zap.Error(err))
+	if err := s.svc.SetPinned(ctx, req.UserId, req.ConversationId, req.Pinned); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &commonpb.Empty{}, nil
@@ -91,8 +84,7 @@ func (s *Server) SetMuted(ctx context.Context, req *conversationpb.SetMutedReque
 	if req.UserId == "" || req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id and conversation_id are required")
 	}
-	if err := s.conversationService.SetMuted(ctx, req.UserId, req.ConversationId, req.Muted); err != nil {
-		logger.Error("SetMuted failed", zap.String("conversationID", req.ConversationId), zap.Error(err))
+	if err := s.svc.SetMuted(ctx, req.UserId, req.ConversationId, req.Muted); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &commonpb.Empty{}, nil
@@ -103,8 +95,7 @@ func (s *Server) ClearUnread(ctx context.Context, req *conversationpb.ClearUnrea
 	if req.UserId == "" || req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id and conversation_id are required")
 	}
-	if err := s.conversationService.ClearUnread(ctx, req.UserId, req.ConversationId); err != nil {
-		logger.Error("ClearUnread failed", zap.String("conversationID", req.ConversationId), zap.Error(err))
+	if err := s.svc.ClearUnread(ctx, req.UserId, req.ConversationId); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &commonpb.Empty{}, nil
@@ -115,9 +106,8 @@ func (s *Server) GetTotalUnread(ctx context.Context, req *conversationpb.GetTota
 	if req.UserId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id is required")
 	}
-	total, err := s.conversationService.GetTotalUnread(ctx, req.UserId)
+	total, err := s.svc.GetTotalUnread(ctx, req.UserId)
 	if err != nil {
-		logger.Error("GetTotalUnread failed", zap.String("userID", req.UserId), zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &conversationpb.GetTotalUnreadResponse{TotalUnread: total}, nil
@@ -128,8 +118,7 @@ func (s *Server) IncrUnread(ctx context.Context, req *conversationpb.IncrUnreadR
 	if req.UserId == "" || req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id and conversation_id are required")
 	}
-	if err := s.conversationService.IncrUnread(ctx, req.UserId, req.ConversationId, req.Count); err != nil {
-		logger.Error("IncrUnread failed", zap.String("conversationID", req.ConversationId), zap.Error(err))
+	if err := s.svc.IncrUnread(ctx, req.UserId, req.ConversationId, req.Count); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &commonpb.Empty{}, nil
@@ -140,8 +129,7 @@ func (s *Server) SetBurnAfterReading(ctx context.Context, req *conversationpb.Se
 	if req.UserId == "" || req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id and conversation_id are required")
 	}
-	if err := s.conversationService.SetBurnAfterReading(ctx, req.UserId, req.ConversationId, req.Duration); err != nil {
-		logger.Error("SetBurnAfterReading failed", zap.String("conversationID", req.ConversationId), zap.Error(err))
+	if err := s.svc.SetBurnAfterReading(ctx, req.UserId, req.ConversationId, req.Duration); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &commonpb.Empty{}, nil
@@ -152,8 +140,7 @@ func (s *Server) SetAutoDelete(ctx context.Context, req *conversationpb.SetAutoD
 	if req.UserId == "" || req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "user_id and conversation_id are required")
 	}
-	if err := s.conversationService.SetAutoDelete(ctx, req.UserId, req.ConversationId, req.Duration); err != nil {
-		logger.Error("SetAutoDelete failed", zap.String("conversationID", req.ConversationId), zap.Error(err))
+	if err := s.svc.SetAutoDelete(ctx, req.UserId, req.ConversationId, req.Duration); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &commonpb.Empty{}, nil

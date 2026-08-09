@@ -17,20 +17,20 @@ import (
 // FriendServer is the friend gRPC server
 type FriendServer struct {
 	friendpb.UnimplementedFriendServiceServer
-	friendService service.FriendService
+	svc service.FriendService
 }
 
 // NewFriendServer creates a new friend gRPC server
-func NewFriendServer(friendService service.FriendService) *FriendServer {
+func NewFriendServer(service service.FriendService) *FriendServer {
 	return &FriendServer{
-		friendService: friendService,
+		svc: service,
 	}
 }
 
 // GetFriendList retrieves the friend list
 func (s *FriendServer) GetFriendList(ctx context.Context, req *friendpb.GetFriendListRequest) (*friendpb.GetFriendListResponse, error) {
 	// Call service layer
-	resp, err := s.friendService.GetFriendList(ctx, req.UserId, req.LastUpdateTime)
+	resp, err := s.svc.GetFriendList(ctx, req.UserId, req.LastUpdateTime)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -75,7 +75,7 @@ func (s *FriendServer) SendFriendRequest(ctx context.Context, req *friendpb.Send
 	}
 
 	// Call service layer
-	resp, err := s.friendService.SendFriendRequest(ctx, req.FromUserId, dtoReq)
+	resp, err := s.svc.SendFriendRequest(ctx, req.FromUserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -99,7 +99,7 @@ func (s *FriendServer) HandleFriendRequest(ctx context.Context, req *friendpb.Ha
 	}
 
 	// Call service layer
-	err := s.friendService.HandleFriendRequest(ctx, req.UserId, req.RequestId, dtoReq)
+	err := s.svc.HandleFriendRequest(ctx, req.UserId, req.RequestId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -118,7 +118,7 @@ func (s *FriendServer) GetFriendRequests(ctx context.Context, req *friendpb.GetF
 	}
 
 	// Call service layer
-	resp, err := s.friendService.GetFriendRequests(ctx, req.UserId, queryType)
+	resp, err := s.svc.GetFriendRequests(ctx, req.UserId, queryType)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -153,7 +153,7 @@ func (s *FriendServer) GetFriendRequests(ctx context.Context, req *friendpb.GetF
 
 // DeleteFriend deletes a friend
 func (s *FriendServer) DeleteFriend(ctx context.Context, req *friendpb.DeleteFriendRequest) (*commonpb.Empty, error) {
-	err := s.friendService.DeleteFriend(ctx, req.UserId, req.FriendId)
+	err := s.svc.DeleteFriend(ctx, req.UserId, req.FriendId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -166,7 +166,7 @@ func (s *FriendServer) UpdateRemark(ctx context.Context, req *friendpb.UpdateRem
 		Remark: req.Remark,
 	}
 
-	err := s.friendService.UpdateRemark(ctx, req.UserId, req.FriendId, dtoReq)
+	err := s.svc.UpdateRemark(ctx, req.UserId, req.FriendId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -179,7 +179,7 @@ func (s *FriendServer) AddToBlacklist(ctx context.Context, req *friendpb.AddToBl
 		UserId: req.BlockedUserId,
 	}
 
-	err := s.friendService.AddToBlacklist(ctx, req.UserId, dtoReq)
+	err := s.svc.AddToBlacklist(ctx, req.UserId, dtoReq)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -188,7 +188,7 @@ func (s *FriendServer) AddToBlacklist(ctx context.Context, req *friendpb.AddToBl
 
 // RemoveFromBlacklist removes user from blacklist
 func (s *FriendServer) RemoveFromBlacklist(ctx context.Context, req *friendpb.RemoveFromBlacklistRequest) (*commonpb.Empty, error) {
-	err := s.friendService.RemoveFromBlacklist(ctx, req.UserId, req.BlockedUserId)
+	err := s.svc.RemoveFromBlacklist(ctx, req.UserId, req.BlockedUserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -197,7 +197,7 @@ func (s *FriendServer) RemoveFromBlacklist(ctx context.Context, req *friendpb.Re
 
 // GetBlacklist retrieves the blacklist
 func (s *FriendServer) GetBlacklist(ctx context.Context, req *friendpb.GetBlacklistRequest) (*friendpb.GetBlacklistResponse, error) {
-	resp, err := s.friendService.GetBlacklist(ctx, req.UserId)
+	resp, err := s.svc.GetBlacklist(ctx, req.UserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -229,7 +229,7 @@ func (s *FriendServer) GetBlacklist(ctx context.Context, req *friendpb.GetBlackl
 
 // IsFriend checks if users are friends
 func (s *FriendServer) IsFriend(ctx context.Context, req *friendpb.IsFriendRequest) (*friendpb.IsFriendResponse, error) {
-	isFriend, err := s.friendService.IsFriend(ctx, req.UserId, req.FriendId)
+	isFriend, err := s.svc.IsFriend(ctx, req.UserId, req.FriendId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -240,7 +240,7 @@ func (s *FriendServer) IsFriend(ctx context.Context, req *friendpb.IsFriendReque
 
 // IsBlocked checks if user is blocked
 func (s *FriendServer) IsBlocked(ctx context.Context, req *friendpb.IsBlockedRequest) (*friendpb.IsBlockedResponse, error) {
-	isBlocked, err := s.friendService.IsBlocked(ctx, req.UserId, req.TargetUserId)
+	isBlocked, err := s.svc.IsBlocked(ctx, req.UserId, req.TargetUserId)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -251,7 +251,7 @@ func (s *FriendServer) IsBlocked(ctx context.Context, req *friendpb.IsBlockedReq
 
 // BatchCheckFriend batch checks friend relationships
 func (s *FriendServer) BatchCheckFriend(ctx context.Context, req *friendpb.BatchCheckFriendRequest) (*friendpb.BatchCheckFriendResponse, error) {
-	results, err := s.friendService.BatchCheckFriend(ctx, req.UserId, req.FriendIds)
+	results, err := s.svc.BatchCheckFriend(ctx, req.UserId, req.FriendIds)
 	if err != nil {
 		return nil, convertError(err)
 	}
