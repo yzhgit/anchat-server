@@ -156,17 +156,6 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				groups.PUT("/:id/requests/:requestId", groupHandler.HandleJoinRequest)
 			}
 
-			// compatible with singular path in design doc
-			groupAlias := authorized.Group("/group")
-			{
-				groupAlias.GET("/list", groupHandler.GetMyGroups)
-				groupAlias.GET("/:id", groupHandler.GetGroupInfo)
-				groupAlias.PUT("/:id/remark", groupHandler.UpdateMemberRemark)
-				groupAlias.POST("/join-by-qrcode", groupHandler.JoinGroupByQRCode)
-				groupAlias.GET("/:id/qrcode", groupHandler.GetGroupQRCode)
-				groupAlias.POST("/:id/qrcode/refresh", groupHandler.RefreshGroupQRCode)
-			}
-
 			// File routes
 			files := authorized.Group("/files")
 			{
@@ -229,7 +218,23 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 			}
 
 			// Calling routes (recommended)
-			registerCallingRoutes(authorized.Group("/calling"), callingHandler)
+			calling := authorized.Group("/calling")
+			{
+				// one-on-one calls
+				calling.POST("/calls", callingHandler.InitiateCall)
+				calling.GET("/calls", callingHandler.ListCallLogs)
+				calling.GET("/calls/:call_id", callingHandler.GetCallSession)
+				calling.POST("/calls/:call_id/join", callingHandler.JoinCall)
+				calling.POST("/calls/:call_id/reject", callingHandler.RejectCall)
+				calling.POST("/calls/:call_id/end", callingHandler.EndCall)
+
+				// meeting rooms
+				calling.POST("/meetings", callingHandler.CreateMeeting)
+				calling.GET("/meetings", callingHandler.ListMeetings)
+				calling.GET("/meetings/:room_id", callingHandler.GetMeeting)
+				calling.POST("/meetings/:room_id/join", callingHandler.JoinMeeting)
+				calling.POST("/meetings/:room_id/end", callingHandler.EndMeeting)
+			}
 		}
 	}
 
@@ -240,21 +245,4 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 			"service": "gateway-service",
 		})
 	})
-}
-
-func registerCallingRoutes(group *gin.RouterGroup, handler *CallingHandler) {
-	// one-on-one calls
-	group.POST("/calls", handler.InitiateCall)
-	group.GET("/calls", handler.ListCallLogs)
-	group.GET("/calls/:call_id", handler.GetCallSession)
-	group.POST("/calls/:call_id/join", handler.JoinCall)
-	group.POST("/calls/:call_id/reject", handler.RejectCall)
-	group.POST("/calls/:call_id/end", handler.EndCall)
-
-	// meeting rooms
-	group.POST("/meetings", handler.CreateMeeting)
-	group.GET("/meetings", handler.ListMeetings)
-	group.GET("/meetings/:room_id", handler.GetMeeting)
-	group.POST("/meetings/:room_id/join", handler.JoinMeeting)
-	group.POST("/meetings/:room_id/end", handler.EndMeeting)
 }
