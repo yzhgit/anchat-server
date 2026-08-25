@@ -1,0 +1,3 @@
+url: ${LIVEKIT_URL:ws://localhost:7880}
+api_key: ${LIVEKIT_API_KEY:devkey}
+api_secret: ${LIVEKIT_API_SECRET:secret}

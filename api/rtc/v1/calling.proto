@@ -1,0 +1,228 @@
+syntax = "proto3";
+
+package rtc.v1;
+
+option go_package = "flamingo/api/rtc/v1;v1";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// RtcService real-time communication service (audio/video calling and meetings)
+service RtcService {
+  // ========== Gateway HTTP APIs ==========
+
+  // InitiateCall initiate a call
+  rpc InitiateCall(InitiateCallRequest) returns (CallSession) {
+    option (google.api.http) = {
+      post: "/api/v1/calls"
+      body: "*"
+    };
+  }
+
+  // JoinCall join a call
+  rpc JoinCall(JoinCallRequest) returns (CallSession) {
+    option (google.api.http) = {
+      post: "/api/v1/calls/{call_id}/join"
+      body: "*"
+    };
+  }
+
+  // RejectCall reject a call
+  rpc RejectCall(RejectCallRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/calls/{call_id}/reject"
+      body: "*"
+    };
+  }
+
+  // EndCall end a call
+  rpc EndCall(EndCallRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/calls/{call_id}/end"
+      body: "*"
+    };
+  }
+
+  // GetCallSession get call session
+  rpc GetCallSession(GetCallSessionRequest) returns (CallSession) {
+    option (google.api.http) = {
+      get: "/api/v1/calls/{call_id}"
+    };
+  }
+
+  // ListCallLogs list call logs
+  rpc ListCallLogs(ListCallLogsRequest) returns (ListCallLogsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/calls/logs"
+    };
+  }
+
+  // CreateMeeting create a meeting
+  rpc CreateMeeting(CreateMeetingRequest) returns (Meeting) {
+    option (google.api.http) = {
+      post: "/api/v1/meetings"
+      body: "*"
+    };
+  }
+
+  // JoinMeeting join a meeting
+  rpc JoinMeeting(JoinMeetingRequest) returns (Meeting) {
+    option (google.api.http) = {
+      post: "/api/v1/meetings/{room_id}/join"
+      body: "*"
+    };
+  }
+
+  // EndMeeting end a meeting
+  rpc EndMeeting(EndMeetingRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/meetings/{room_id}/end"
+      body: "*"
+    };
+  }
+
+  // GetMeeting get meeting detail
+  rpc GetMeeting(GetMeetingRequest) returns (Meeting) {
+    option (google.api.http) = {
+      get: "/api/v1/meetings/{room_id}"
+    };
+  }
+
+  // ListMeetings list meetings
+  rpc ListMeetings(ListMeetingsRequest) returns (ListMeetingsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/meetings"
+    };
+  }
+}
+
+// CallType the type of call
+enum CallType {
+  CALL_TYPE_UNSPECIFIED = 0;
+  CALL_TYPE_AUDIO = 1;
+  CALL_TYPE_VIDEO = 2;
+}
+
+// CallStatus the status of a call
+enum CallStatus {
+  CALL_STATUS_UNSPECIFIED = 0;
+  CALL_STATUS_RINGING = 1;
+  CALL_STATUS_ACTIVE = 2;
+  CALL_STATUS_ENDED = 3;
+  CALL_STATUS_MISSED = 4;
+  CALL_STATUS_REJECTED = 5;
+}
+
+// InitiateCallRequest initiate call request
+message InitiateCallRequest {
+  string callee_id = 1;
+  CallType call_type = 2;
+}
+
+// JoinCallRequest join call request
+message JoinCallRequest {
+  string call_id = 1;
+}
+
+// RejectCallRequest reject call request
+message RejectCallRequest {
+  string call_id = 1;
+}
+
+// EndCallRequest end call request
+message EndCallRequest {
+  string call_id = 1;
+}
+
+// GetCallSessionRequest get call session request
+message GetCallSessionRequest {
+  string call_id = 1;
+}
+
+// CallSession call session info
+message CallSession {
+  string call_id = 1;
+  string caller_id = 2;
+  string callee_id = 3;
+  CallType call_type = 4;
+  CallStatus status = 5;
+  google.protobuf.Timestamp started_at = 6;
+  google.protobuf.Timestamp ended_at = 7;
+  int64 duration = 8;
+  string room_name = 9;
+  string token = 10;
+}
+
+// ListCallLogsRequest list call logs request
+message ListCallLogsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+// ListCallLogsResponse list call logs response
+message ListCallLogsResponse {
+  int64 total = 1;
+  repeated CallLog call_logs = 2;
+}
+
+// CallLog call log
+message CallLog {
+  string call_id = 1;
+  string target_id = 2;
+  CallType call_type = 3;
+  CallStatus status = 4;
+  string direction = 5; // "inbound" or "outbound"
+  google.protobuf.Timestamp started_at = 6;
+  google.protobuf.Timestamp ended_at = 7;
+  int64 duration = 8;
+}
+
+// CreateMeetingRequest create meeting request
+message CreateMeetingRequest {
+  string title = 1;
+  optional string password = 2;
+  int32 max_participants = 3;
+}
+
+// Meeting meeting info
+message Meeting {
+  string room_id = 1;
+  string title = 2;
+  string creator_id = 3;
+  bool has_password = 4;
+  int32 max_participants = 5;
+  int32 current_participants = 6;
+  google.protobuf.Timestamp started_at = 7;
+  google.protobuf.Timestamp ended_at = 8;
+  bool is_active = 9;
+  string token = 10;
+}
+
+// JoinMeetingRequest join meeting request
+message JoinMeetingRequest {
+  string room_id = 1;
+  optional string password = 2;
+}
+
+// EndMeetingRequest end meeting request
+message EndMeetingRequest {
+  string room_id = 1;
+}
+
+// GetMeetingRequest get meeting request
+message GetMeetingRequest {
+  string room_id = 1;
+}
+
+// ListMeetingsRequest list meetings request
+message ListMeetingsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+// ListMeetingsResponse list meetings response
+message ListMeetingsResponse {
+  int64 total = 1;
+  repeated Meeting meetings = 2;
+}

@@ -1,0 +1,33 @@
+environment: ${APP_ENV:dev}
+server:
+  http:
+    addr: ${HTTP_ADDR:0.0.0.0:9101}
+    timeout: 5s
+  grpc:
+    addr: ${GRPC_ADDR:0.0.0.0:50051}
+    timeout: 5s
+data:
+  database:
+    host: ${DB_HOST:localhost}
+    port: ${DB_PORT:5432}
+    user: ${DB_USER:anychat}
+    password: ${DB_PASSWORD:anychat}
+    db_name: ${DB_NAME:im}
+    ssl_mode: ${DB_SSL_MODE:disable}
+  cache:
+    addr: ${REDIS_ADDR:127.0.0.1:6379}
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  broker:
+    type: ${BROKER_TYPE:nats}
+    addr: ${BROKER_ADDR:nats://127.0.0.1:4222}
+trace:
+  endpoint: ${TRACING_ENDPOINT:127.0.0.1:4317}
+registry:
+  consul:
+    address: ${CONSUL_ADDR:127.0.0.1:8500}
+    scheme: http
+auth:
+  secret: ${JWT_SECRET:your-secret-key-change-in-production}
+  access_token_expire: 7200s
+  refresh_token_expire: 604800s

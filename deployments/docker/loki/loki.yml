@@ -1,0 +1,41 @@
+# Loki configuration for AnyChat IM System
+#
+# Local single-binary config — suitable for development.
+# Version: 3.0.0 (required for Grafana 13's Logs Drilldown app,
+# which calls the /loki/api/v1/index/volume endpoint only present in 3.x).
+#
+# Key differences from Loki 2.x:
+# - schema.store = "tsdb" (not "boltdb-shipper")
+# - No storage_config.boltdb_shipper or tsdb_shipper block
+# - Storage paths live under common.storage.filesystem
+# - compactor.working_directory is sufficient (no shared_store)
+
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /tmp/loki
+  storage:
+    filesystem:
+      chunks_directory: /tmp/loki/chunks
+      rules_directory: /tmp/loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  max_global_streams_per_user: 100000

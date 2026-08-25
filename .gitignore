@@ -1,0 +1,63 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test coverage
+*.out
+coverage.html
+
+# Dependency directories
+vendor/
+
+# Environment files (exclude .example templates — they should be committed)
+.env
+.env.local
+.env.*.local
+.env.dev
+.env.prod
+!.env.dev.example
+!.env.prod.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+
+# Configuration
+configs/config.local.yaml
+
+# Temporary files
+*.tmp
+temp/
+tmp/
+
+# Go workspace
+go.work
+go.work.sum
+
+# Node modules (for documentation server)
+node_modules/
+
+# Note: docs/api/swagger/ is NOT ignored - those files should be committed
+# They are generated but needed for the documentation site to work
+
+# Generated code
+api/**/*.pb.go

@@ -1,0 +1,200 @@
+services:
+  postgres:
+      image: postgres:18.0-alpine
+      container_name: anychat-postgres
+      restart: always
+      environment:
+        POSTGRES_USER: ${DB_USER:-anychat}
+        POSTGRES_PASSWORD: ${DB_PASSWORD:-anychat}
+        POSTGRES_DB: ${DB_NAME:-im}
+      ports:
+        - "5432:5432/tcp"
+      tmpfs:
+        - /var/lib/postgresql/data:size=2G
+      networks:
+        - anychat-network
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-anychat}"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+  consul:
+    image: hashicorp/consul:2.0.2
+    container_name: anychat-consul
+    restart: always
+    ports:
+      - "8500:8500/tcp"
+    healthcheck:
+      test: ["CMD", "consul", "info"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - anychat-network
+
+  redis:
+    image: redis:7.4.7-alpine
+    container_name: anychat-redis
+    command: redis-server /etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/redis.conf:/etc/redis/redis.conf
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - anychat-network
+
+  nats:
+    image: nats:2.10.29-alpine
+    container_name: anychat-nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - ./nats/nats.conf:/etc/nats/nats.conf
+      - nats_data:/data/jetstream
+    command: --config /etc/nats/nats.conf
+    networks:
+      - anychat-network
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: anychat-minio
+    env_file:
+      - ./minio/minio.env
+    ports:
+      - "9000:9000"
+      - "9091:9091"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9091"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - anychat-network
+
+  livekit:
+    image: livekit/livekit-server:v1.9.11
+    container_name: anychat-livekit
+    ports:
+      - "7880:7880"    # WebSocket / HTTP API
+      - "7881:7881"    # RTC TCP
+      - "7882:7882/udp" # RTC UDP
+    volumes:
+      - ./livekit/livekit.yml:/etc/livekit/livekit.yml
+    command: --config /etc/livekit/livekit.yml --dev
+    networks:
+      - anychat-network
+
+  # ===== Monitoring Services =====
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: anychat-prometheus
+    network_mode: host
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: anychat-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    # Prometheus uses network_mode: host, so it's not on the bridge network
+    # and can't be reached by container name. Map "prometheus" to host-gateway
+    # via /etc/hosts so the datasource URL resolves inside Grafana.
+    extra_hosts:
+      - "prometheus:host-gateway"
+    networks:
+      - anychat-network
+
+  # Tempo is Grafana's native trace storage. Grafana 13's Explore Traces
+  # app (grafana-exploretraces-app) only supports Tempo, not Jaeger.
+  # Tempo ingests OTLP on ports 4317 (gRPC) / 4318 (HTTP) — the same
+  # endpoints Jaeger used — so no service code changes are required.
+  tempo:
+    image: grafana/tempo:2.5.0
+    container_name: anychat-tempo
+    ports:
+      - "3200:3200"      # Tempo HTTP API
+      - "4317:4317"      # OTLP gRPC receiver (services → Tempo)
+      - "4318:4318"      # OTLP HTTP receiver (services → Tempo)
+    volumes:
+      - ./tempo/tempo.yml:/etc/tempo/tempo.yml
+    tmpfs:
+      - /tmp
+    command: -config.file=/etc/tempo/tempo.yml
+    # Prometheus uses network_mode: host, so it's not reachable by
+    # container name from the bridge network. Map "prometheus" to
+    # host-gateway so metrics_generator's remote_write works.
+    extra_hosts:
+      - "prometheus:host-gateway"
+    networks:
+      - anychat-network
+
+  # ===== Logging (Loki + Promtail) =====
+  loki:
+    # Loki 3.x is required for Grafana 13's Logs Drilldown app.
+    # Grafana 13's Logs Drilldown app calls /loki/api/v1/index/volume which
+    # only exists in Loki 3.1+. Loki 3.0.0 returns HTTP 404 for that endpoint.
+    image: grafana/loki:3.1.0
+    container_name: anychat-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki.yml:/etc/loki/loki.yml
+    command: -config.file=/etc/loki/loki.yml
+    networks:
+      - anychat-network
+
+  promtail:
+    # Promtail 3.x matches Loki 3.x ingestion format.
+    image: grafana/promtail:3.0.0
+    container_name: anychat-promtail
+    volumes:
+      - ./promtail/promtail.yml:/etc/promtail/promtail.yml
+      # Docker socket for container discovery (infrastructure logs)
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # Host log files for local services (gateway, user, realtime, etc.)
+      # Local services started via `mage dev:*` tee stdout to
+      # ${LOG_DIR}/<service>.log (default: /tmp/anychat-logs/).
+      # Promtail reads them at /logs/<service>.log inside the container.
+      - ${LOG_DIR:-/tmp/anychat-logs}:/logs:ro
+    command: -config.file=/etc/promtail/promtail.yml
+    networks:
+      - anychat-network
+
+volumes:
+  redis_data:
+  nats_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  tempo_data:
+
+networks:
+  anychat-network:
+    driver: bridge

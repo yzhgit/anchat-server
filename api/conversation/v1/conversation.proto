@@ -1,0 +1,210 @@
+syntax = "proto3";
+
+package conversation.v1;
+
+option go_package = "flamingo/api/conversation/v1;v1";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ConversationService conversation service
+service ConversationService {
+  // ========== Gateway HTTP APIs ==========
+
+  // GetConversations get conversation list
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/conversations"
+    };
+  }
+
+  // GetConversation get conversation detail
+  rpc GetConversation(GetConversationRequest) returns (Conversation) {
+    option (google.api.http) = {
+      get: "/api/v1/conversations/{conversation_id}"
+    };
+  }
+
+  // DeleteConversation delete conversation
+  rpc DeleteConversation(DeleteConversationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/conversations/{conversation_id}"
+    };
+  }
+
+  // SetPinned pin/unpin conversation
+  rpc SetPinned(SetPinnedRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/conversations/{conversation_id}/pin"
+      body: "*"
+    };
+  }
+
+  // SetMuted mute/unmute conversation
+  rpc SetMuted(SetMutedRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/conversations/{conversation_id}/mute"
+      body: "*"
+    };
+  }
+
+  // ClearUnread clear unread count
+  rpc ClearUnread(ClearUnreadRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/conversations/{conversation_id}/clear-unread"
+      body: "*"
+    };
+  }
+
+  // GetTotalUnread get total unread count
+  rpc GetTotalUnread(GetTotalUnreadRequest) returns (GetTotalUnreadResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/conversations/unread/total"
+    };
+  }
+
+  // SetBurnAfterReading set burn-after-reading duration
+  rpc SetBurnAfterReading(SetBurnAfterReadingRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/conversations/{conversation_id}/burn-after-reading"
+      body: "*"
+    };
+  }
+
+  // SetAutoDelete set auto-delete duration
+  rpc SetAutoDelete(SetAutoDeleteRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/conversations/{conversation_id}/auto-delete"
+      body: "*"
+    };
+  }
+
+  // ========== Internal gRPC APIs (called by other services, NOT exposed via gateway) ==========
+
+  // CreateOrUpdateConversation create or update conversation (internal)
+  rpc CreateOrUpdateConversation(CreateOrUpdateConversationRequest) returns (Conversation);
+
+  // IncrUnread increment unread count (internal)
+  rpc IncrUnread(IncrUnreadRequest) returns (google.protobuf.Empty);
+
+  // GetConversationByUserAndTarget get conversation by user and target (internal)
+  rpc GetConversationByUserAndTarget(GetConversationByUserAndTargetRequest) returns (Conversation);
+}
+
+// ========== Shared Conversation Types ==========
+
+// ConversationType conversation category
+enum ConversationType {
+  CONVERSATION_TYPE_UNSPECIFIED = 0;
+  CONVERSATION_TYPE_SINGLE = 1;
+  CONVERSATION_TYPE_GROUP = 2;
+  CONVERSATION_TYPE_SYSTEM = 3;
+}
+
+// Conversation conversation info
+message Conversation {
+  string conversation_id = 1;
+  ConversationType conversation_type = 2;
+  string target_id = 3;
+  string target_user_id = 4;
+  repeated string member_ids = 5;
+  optional string last_message_id = 6;
+  optional string last_message_content = 7;
+  google.protobuf.Timestamp last_message_time = 8;
+  int32 unread_count = 9;
+  bool is_pinned = 10;
+  bool is_muted = 11;
+  google.protobuf.Timestamp pin_time = 12;
+  int32 burn_after_reading = 13;
+  int32 auto_delete_duration = 14;
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+}
+
+// ========== Request/Response Messages ==========
+
+// GetConversationsRequest get conversation list request
+message GetConversationsRequest {
+  int32 limit = 1;
+  google.protobuf.Timestamp updated_before = 2;
+}
+
+// GetConversationsResponse get conversation list response
+message GetConversationsResponse {
+  repeated Conversation conversations = 1;
+}
+
+// GetConversationRequest get conversation detail request
+message GetConversationRequest {
+  string conversation_id = 1;
+}
+
+// DeleteConversationRequest delete conversation request
+message DeleteConversationRequest {
+  string conversation_id = 1;
+}
+
+// SetPinnedRequest set pinned status request
+message SetPinnedRequest {
+  string conversation_id = 1;
+  bool pinned = 2;
+}
+
+// SetMutedRequest set muted status request
+message SetMutedRequest {
+  string conversation_id = 1;
+  bool muted = 2;
+}
+
+// ClearUnreadRequest clear unread request
+message ClearUnreadRequest {
+  string conversation_id = 1;
+}
+
+// GetTotalUnreadRequest get total unread request
+message GetTotalUnreadRequest {}
+
+// GetTotalUnreadResponse get total unread response
+message GetTotalUnreadResponse {
+  int64 total = 1;
+}
+
+// SetBurnAfterReadingRequest set burn-after-reading request
+message SetBurnAfterReadingRequest {
+  string conversation_id = 1;
+  int32 duration = 2;
+}
+
+// SetAutoDeleteRequest set auto-delete request
+message SetAutoDeleteRequest {
+  string conversation_id = 1;
+  int32 duration = 2;
+}
+
+// ========== Internal RPC Messages ==========
+
+// CreateOrUpdateConversationRequest create or update conversation request
+message CreateOrUpdateConversationRequest {
+  string user_id = 1;
+  string target_id = 2;
+  string conversation_type = 3;
+  string target_user_id = 4;
+  repeated string member_ids = 5;
+  string first_message_id = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// IncrUnreadRequest increment unread count request
+message IncrUnreadRequest {
+  string user_id = 1;
+  string conversation_id = 2;
+  int64 incr = 3;
+}
+
+// GetConversationByUserAndTargetRequest get conversation by user and target request
+message GetConversationByUserAndTargetRequest {
+  string user_id = 1;
+  string target_id = 2;
+  string conversation_type = 3;
+}

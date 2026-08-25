@@ -1,0 +1,465 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "flamingo/api/user/v1;v1";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// UserService user service
+service UserService {
+  // ========== Gateway HTTP APIs ==========
+
+  // SendVerificationCode send verification code
+  rpc SendVerificationCode(SendVerificationCodeRequest) returns (SendVerificationCodeResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/send-code"
+      body: "*"
+    };
+  }
+
+  // Register user registration
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/register"
+      body: "*"
+    };
+  }
+
+  // Login user login
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/login"
+      body: "*"
+    };
+  }
+
+  // Logout user logout
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/users/logout"
+      body: "*"
+    };
+  }
+
+  // RefreshToken refresh access token
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/refresh"
+      body: "*"
+    };
+  }
+
+  // ChangePassword change password
+  rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/users/password/change"
+      body: "*"
+    };
+  }
+
+  // ResetPassword reset password (forgot password)
+  rpc ResetPassword(ResetPasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/users/password/reset"
+      body: "*"
+    };
+  }
+
+  // -------------------------personal profile----------------------------------
+  // GetProfile get profile
+  rpc GetProfile(GetProfileRequest) returns (UserProfileResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users/me"
+    };
+  }
+
+  // UpdateProfile update profile
+  rpc UpdateProfile(UpdateProfileRequest) returns (UserProfileResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/users/me"
+      body: "*"
+    };
+  }
+
+  // BindPhone bind phone number
+  rpc BindPhone(BindPhoneRequest) returns (BindPhoneResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/me/phone/bind"
+      body: "*"
+    };
+  }
+
+  // ChangePhone change phone number
+  rpc ChangePhone(ChangePhoneRequest) returns (ChangePhoneResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/me/phone/change"
+      body: "*"
+    };
+  }
+
+  // BindEmail bind email
+  rpc BindEmail(BindEmailRequest) returns (BindEmailResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/me/email/bind"
+      body: "*"
+    };
+  }
+
+  // ChangeEmail change email
+  rpc ChangeEmail(ChangeEmailRequest) returns (ChangeEmailResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/me/email/change"
+      body: "*"
+    };
+  }
+
+  // -------------------------user search----------------------------------
+  // GetUserInfo get user info (query other users)
+  rpc GetUserInfo(GetUserInfoRequest) returns (UserInfoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users/{target_user_id}"
+    };
+  }
+
+  // SearchUsers search users
+  rpc SearchUsers(SearchUsersRequest) returns (SearchUsersResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users/search"
+    };
+  }
+
+  // -------------------------settings----------------------------------
+  // GetSettings get user settings
+  rpc GetSettings(GetSettingsRequest) returns (UserSettingsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users/me/settings"
+    };
+  }
+
+  // UpdateSettings update user settings
+  rpc UpdateSettings(UpdateSettingsRequest) returns (UserSettingsResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/users/me/settings"
+      body: "*"
+    };
+  }
+
+  // -------------------------QR code----------------------------------
+  // RefreshQRCode refresh QR code
+  rpc RefreshQRCode(RefreshQRCodeRequest) returns (QRCodeResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/qrcode/refresh"
+      body: "*"
+    };
+  }
+
+  // GetUserByQRCode get user by QR code
+  rpc GetUserByQRCode(GetUserByQRCodeRequest) returns (UserInfoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users/qrcode"
+    };
+  }
+
+  // -------------------------push token----------------------------------
+  // UpdatePushToken update push token
+  rpc UpdatePushToken(UpdatePushTokenRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/users/push_token"
+      body: "*"
+    };
+  }
+}
+
+enum PushPlatform {
+  PUSH_PLATFORM_UNSPECIFIED = 0;
+  PUSH_PLATFORM_IOS = 1;
+  PUSH_PLATFORM_ANDROID = 2;
+}
+
+enum DeviceType {
+  DEVICE_TYPE_UNSPECIFIED = 0;
+  DEVICE_TYPE_IOS = 1;
+  DEVICE_TYPE_ANDROID = 2;
+  DEVICE_TYPE_WEB = 3;
+  DEVICE_TYPE_PC = 4;
+  DEVICE_TYPE_H5 = 5;
+}
+
+enum VerificationTargetType {
+  VERIFICATION_TARGET_TYPE_UNSPECIFIED = 0;
+  VERIFICATION_TARGET_TYPE_SMS = 1;
+  VERIFICATION_TARGET_TYPE_EMAIL = 2;
+}
+
+enum VerificationPurpose {
+  VERIFICATION_PURPOSE_UNSPECIFIED = 0;
+  VERIFICATION_PURPOSE_REGISTER = 1;
+  VERIFICATION_PURPOSE_LOGIN = 2;
+  VERIFICATION_PURPOSE_RESET_PASSWORD = 3;
+  VERIFICATION_PURPOSE_BIND_PHONE = 4;
+  VERIFICATION_PURPOSE_CHANGE_PHONE = 5;
+  VERIFICATION_PURPOSE_BIND_EMAIL = 6;
+  VERIFICATION_PURPOSE_CHANGE_EMAIL = 7;
+}
+
+// SendVerificationCodeRequest send verification code request
+message SendVerificationCodeRequest {
+  string target = 1; // phone number or email
+  VerificationTargetType target_type = 2; // 1-sms 2-email
+  VerificationPurpose purpose = 3; // 1-register 2-login 3-reset_password 4-bind_phone 5-change_phone 6-bind_email 7-change_email
+  string device_id = 4;
+  string ip_address = 5;
+}
+
+// SendVerificationCodeResponse send verification code response
+message SendVerificationCodeResponse {
+  string code_id = 1;
+  int64 expires_in = 2;
+}
+
+// RegisterRequest registration request
+message RegisterRequest {
+  optional string phone_number = 1;
+  optional string email = 2;
+  string password = 3;
+  string verify_code = 4;
+  optional string nickname = 5;
+  DeviceType device_type = 6; // 1-ios 2-android 3-web 4-pc 5-h5
+  string device_id = 7;
+  string client_version = 8; // client version, used for upgrade checks
+}
+
+// RegisterResponse registration response
+message RegisterResponse {
+  string user_id = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  int64 expires_in = 4;
+}
+
+// LoginRequest login request
+message LoginRequest {
+  string account = 1; // phone number or email
+  string password = 2;
+  DeviceType device_type = 3; // 1-ios 2-android 3-web 4-pc 5-h5
+  string device_id = 4;
+  string client_version = 5; // client version, used for upgrade checks
+  string ip_address = 6; // client IP address
+}
+
+// LoginResponse login response
+message LoginResponse {
+  string user_id = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  int64 expires_in = 4;
+  UserInfo user = 5;
+}
+
+// LogoutRequest logout request
+message LogoutRequest {
+  string device_id = 1;
+}
+
+// RefreshTokenRequest refresh token request
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+// RefreshTokenResponse refresh token response
+message RefreshTokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_in = 3;
+}
+
+// ChangePasswordRequest change password request
+message ChangePasswordRequest {
+  string device_id = 1; // current device ID, used to exclude forced logout
+  string old_password = 2;
+  string new_password = 3;
+}
+
+// ResetPasswordRequest reset password request
+message ResetPasswordRequest {
+  string account = 1; // phone number or email
+  string verify_code = 2; // verification code
+  string new_password = 3; // new password
+}
+
+// GetProfileRequest get profile request
+message GetProfileRequest {}
+
+// UpdateProfileRequest update profile request
+message UpdateProfileRequest {
+  optional string nickname = 1;
+  optional string avatar = 2;
+  optional string signature = 3;
+  optional int32 gender = 4;  // 0:unknown 1:male 2:female
+  optional google.protobuf.Timestamp birthday = 5;
+  optional string region = 6;
+}
+
+// UserProfileResponse user profile response
+message UserProfileResponse {
+  string user_id = 1;
+  string nickname = 2;
+  string avatar = 3;
+  string signature = 4;
+  int32 gender = 5;
+  google.protobuf.Timestamp birthday = 6;
+  string region = 7;
+  optional string phone = 8;
+  optional string email = 9;
+  string qrcode_url = 10;
+  google.protobuf.Timestamp created_at = 11;
+}
+
+// GetUserInfoRequest get user info request
+message GetUserInfoRequest {
+  string target_user_id = 1; // target user ID
+}
+
+// UserInfoResponse user info response
+message UserInfoResponse {
+  string user_id = 1;
+  string nickname = 2;
+  string avatar = 3;
+  string signature = 4;
+  int32 gender = 5;
+  string region = 6;
+  bool is_friend = 7;
+  bool is_blocked = 8;
+}
+
+// SearchUsersRequest search users request
+message SearchUsersRequest {
+  string keyword = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+// SearchUsersResponse search users response
+message SearchUsersResponse {
+  int64 total = 1;
+  repeated UserBriefInfo users = 2;
+}
+
+// UserInfo basic user info (shared across services)
+message UserInfo {
+  string user_id = 1;
+  string nickname = 2;
+  string avatar = 3;
+  optional string phone = 4;
+  optional string email = 5;
+}
+
+// UserBriefInfo brief user info
+message UserBriefInfo {
+  string user_id = 1;
+  string nickname = 2;
+  string avatar = 3;
+  string signature = 4;
+}
+
+// GetSettingsRequest get user settings request
+message GetSettingsRequest {
+  // user_id is the target user whose settings to retrieve.
+  // When empty, settings of the current authenticated user (from metadata) are returned.
+  optional string user_id = 1;
+}
+
+// UpdateSettingsRequest update user settings request
+message UpdateSettingsRequest {
+  optional bool notification_enabled = 1;
+  optional bool sound_enabled = 2;
+  optional bool vibration_enabled = 3;
+  optional bool message_preview_enabled = 4;
+  optional bool friend_verify_required = 5;
+  optional bool search_by_phone = 6;
+  optional bool search_by_id = 7;
+  optional string language = 8;
+}
+
+// UserSettingsResponse user settings response
+message UserSettingsResponse {
+  string user_id = 1;
+  bool notification_enabled = 2;
+  bool sound_enabled = 3;
+  bool vibration_enabled = 4;
+  bool message_preview_enabled = 5;
+  bool friend_verify_required = 6;
+  bool search_by_phone = 7;
+  bool search_by_id = 8;
+  string language = 9;
+}
+
+// RefreshQRCodeRequest refresh QR code request
+message RefreshQRCodeRequest {}
+
+// QRCodeResponse QR code response
+message QRCodeResponse {
+  string qrcode_url = 1;
+  google.protobuf.Timestamp expires_at = 2;
+}
+
+// GetUserByQRCodeRequest get user by QR code request
+message GetUserByQRCodeRequest {
+  string qrcode = 1;
+}
+
+// UpdatePushTokenRequest update push token request
+message UpdatePushTokenRequest {
+  string device_id = 1;
+  string push_token = 2;
+  PushPlatform platform = 3; // 1-iOS/2-Android
+}
+
+message BindPhoneRequest {
+  string phone_number = 1;
+  string verify_code = 2;
+}
+
+message BindPhoneResponse {
+  string phone_number = 1;
+  bool is_primary = 2;
+}
+
+message ChangePhoneRequest {
+  string old_phone_number = 1;
+  string new_phone_number = 2;
+  string new_verify_code = 3;
+  optional string old_verify_code = 4;
+  string device_id = 5;
+}
+
+message ChangePhoneResponse {
+  string old_phone_number = 1;
+  string new_phone_number = 2;
+}
+
+message BindEmailRequest {
+  string email = 1;
+  string verify_code = 2;
+}
+
+message BindEmailResponse {
+  string email = 1;
+  bool is_primary = 2;
+}
+
+message ChangeEmailRequest {
+  string old_email = 1;
+  string new_email = 2;
+  string new_verify_code = 3;
+  optional string old_verify_code = 4;
+  string device_id = 5;
+}
+
+message ChangeEmailResponse {
+  string old_email = 1;
+  string new_email = 2;
+}

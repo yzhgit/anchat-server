@@ -1,0 +1,59 @@
+# Prometheus configuration for AnyChat IM System
+# Docker compose mounts this file at /etc/prometheus/prometheus.yml
+#
+# NOTE: App services are local processes (run via mage dev:*), NOT in Docker.
+# Prometheus uses network_mode: host, so scrape targets are localhost:<port>.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # ---- gRPC microservices (each exposes /metrics on a dedicated port) ----
+  - job_name: "user"
+    static_configs:
+      - targets: ["localhost:9101"]
+
+  - job_name: "friend"
+    static_configs:
+      - targets: ["localhost:9102"]
+
+  - job_name: "group"
+    static_configs:
+      - targets: ["localhost:9103"]
+
+  - job_name: "message"
+    static_configs:
+      - targets: ["localhost:9104"]
+
+  - job_name: "conversation"
+    static_configs:
+      - targets: ["localhost:9105"]
+
+  - job_name: "file"
+    static_configs:
+      - targets: ["localhost:9106"]
+
+  - job_name: "rtc"
+    static_configs:
+      - targets: ["localhost:9107"]
+
+  - job_name: "push"
+    static_configs:
+      - targets: ["localhost:9108"]
+
+  # ---- HTTP gateway (metrics on existing HTTP port, bypasses auth) ----
+  - job_name: "gateway"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["localhost:8080"]
+
+  # ---- WebSocket realtime (metrics on existing HTTP port) ----
+  - job_name: "realtime"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["localhost:8081"]

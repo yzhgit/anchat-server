@@ -1,0 +1,249 @@
+syntax = "proto3";
+
+package friend.v1;
+
+option go_package = "flamingo/api/friend/v1;v1";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// FriendService friend service
+service FriendService {
+  // ========== Gateway HTTP APIs ==========
+
+  // GetFriendList get friend list
+  rpc GetFriendList(GetFriendListRequest) returns (GetFriendListResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/friends"
+    };
+  }
+
+  // SendFriendRequest send friend request
+  rpc SendFriendRequest(SendFriendRequestRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/friend-requests"
+      body: "*"
+    };
+  }
+
+  // HandleFriendRequest handle friend request (accept/reject)
+  rpc HandleFriendRequest(HandleFriendRequestRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/friend-requests/{request_id}"
+      body: "*"
+    };
+  }
+
+  // GetFriendRequests get friend request list
+  rpc GetFriendRequests(GetFriendRequestsRequest) returns (GetFriendRequestsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/friend-requests"
+    };
+  }
+
+  // DeleteFriend delete friend
+  rpc DeleteFriend(DeleteFriendRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/friends/{friend_id}"
+    };
+  }
+
+  // UpdateRemark update friend remark
+  rpc UpdateRemark(UpdateRemarkRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/friends/{friend_id}/remark"
+      body: "*"
+    };
+  }
+
+  // AddToBlacklist add user to blacklist
+  rpc AddToBlacklist(AddToBlacklistRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/blacklist"
+      body: "*"
+    };
+  }
+
+  // RemoveFromBlacklist remove user from blacklist
+  rpc RemoveFromBlacklist(RemoveFromBlacklistRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/blacklist/{blocked_user_id}"
+    };
+  }
+
+  // GetBlacklist get blacklist
+  rpc GetBlacklist(GetBlacklistRequest) returns (GetBlacklistResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/blacklist"
+    };
+  }
+
+  // ========== Internal gRPC APIs (called by other services, NOT exposed via gateway) ==========
+
+  // IsFriend check if two users are friends
+  rpc IsFriend(IsFriendRequest) returns (IsFriendResponse);
+
+  // IsBlocked check if user is blocked by target
+  rpc IsBlocked(IsBlockedRequest) returns (IsBlockedResponse);
+
+  // BatchCheckFriend batch check friendship
+  rpc BatchCheckFriend(BatchCheckFriendRequest) returns (BatchCheckFriendResponse);
+}
+
+// ========== Gateway-facing Messages ==========
+
+// GetFriendListRequest get friend list request
+message GetFriendListRequest {
+  google.protobuf.Timestamp last_update_time = 1;
+}
+
+// GetFriendListResponse get friend list response
+message GetFriendListResponse {
+  repeated Friend friends = 1;
+}
+
+// Friend friend info
+message Friend {
+  string user_id = 1;
+  string nickname = 2;
+  string avatar = 3;
+  string remark = 4;
+}
+
+// SendFriendRequestRequest send friend request
+message SendFriendRequestRequest {
+  string to_user_id = 1;
+  string message = 2;
+  FriendRequestSource source = 3;
+}
+
+enum FriendRequestSource {
+  FRIEND_REQUEST_SOURCE_UNSPECIFIED = 0;
+  FRIEND_REQUEST_SOURCE_SEARCH = 1;
+  FRIEND_REQUEST_SOURCE_QR_CODE = 2;
+  FRIEND_REQUEST_SOURCE_GROUP = 3;
+  FRIEND_REQUEST_SOURCE_RECOMMEND = 4;
+}
+
+// HandleFriendRequestRequest handle friend request
+message HandleFriendRequestRequest {
+  string request_id = 1;
+  FriendRequestAction action = 2;
+}
+
+enum FriendRequestAction {
+  FRIEND_REQUEST_ACTION_UNSPECIFIED = 0;
+  FRIEND_REQUEST_ACTION_ACCEPT = 1;
+  FRIEND_REQUEST_ACTION_REJECT = 2;
+}
+
+// GetFriendRequestsRequest get friend requests request
+message GetFriendRequestsRequest {
+  FriendRequestType request_type = 1;
+}
+
+enum FriendRequestType {
+  FRIEND_REQUEST_TYPE_UNSPECIFIED = 0;
+  FRIEND_REQUEST_TYPE_RECEIVED = 1;
+  FRIEND_REQUEST_TYPE_SENT = 2;
+}
+
+// GetFriendRequestsResponse get friend requests response
+message GetFriendRequestsResponse {
+  repeated FriendRequest requests = 1;
+}
+
+// FriendRequest friend request info
+message FriendRequest {
+  string id = 1;
+  string from_user_id = 2;
+  string from_nickname = 3;
+  string from_avatar = 4;
+  string to_user_id = 5;
+  string message = 6;
+  FriendRequestType request_type = 7;
+  FriendRequestStatus status = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+enum FriendRequestStatus {
+  FRIEND_REQUEST_STATUS_UNSPECIFIED = 0;
+  FRIEND_REQUEST_STATUS_PENDING = 1;
+  FRIEND_REQUEST_STATUS_ACCEPTED = 2;
+  FRIEND_REQUEST_STATUS_REJECTED = 3;
+  FRIEND_REQUEST_STATUS_CANCELED = 4;
+}
+
+// DeleteFriendRequest delete friend request
+message DeleteFriendRequest {
+  string friend_id = 1;
+}
+
+// UpdateRemarkRequest update remark request
+message UpdateRemarkRequest {
+  string friend_id = 1;
+  string remark = 2;
+}
+
+// AddToBlacklistRequest add to blacklist request
+message AddToBlacklistRequest {
+  string blocked_user_id = 1;
+}
+
+// RemoveFromBlacklistRequest remove from blacklist request
+message RemoveFromBlacklistRequest {
+  string blocked_user_id = 1;
+}
+
+// GetBlacklistRequest get blacklist request
+message GetBlacklistRequest {}
+
+// GetBlacklistResponse get blacklist response
+message GetBlacklistResponse {
+  repeated BlockedUser blocked_users = 1;
+}
+
+// BlockedUser blocked user info
+message BlockedUser {
+  string user_id = 1;
+  string nickname = 2;
+  string avatar = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+// ========== Internal RPC Messages ==========
+
+// IsFriendRequest check if two users are friends
+message IsFriendRequest {
+  string user_id = 1;
+  string target_user_id = 2;
+}
+
+// IsFriendResponse
+message IsFriendResponse {
+  bool is_friend = 1;
+}
+
+// IsBlockedRequest check if user is blocked by target
+message IsBlockedRequest {
+  string user_id = 1;
+  string target_user_id = 2;
+}
+
+// IsBlockedResponse
+message IsBlockedResponse {
+  bool is_blocked = 1;
+}
+
+// BatchCheckFriendRequest batch check friendship
+message BatchCheckFriendRequest {
+  string user_id = 1;
+  repeated string target_user_ids = 2;
+}
+
+// BatchCheckFriendResponse
+message BatchCheckFriendResponse {
+  map<string, bool> friendship_status = 1;
+}

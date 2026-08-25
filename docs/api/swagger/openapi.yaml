@@ -1,0 +1,4198 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: ""
+    version: 0.0.1
+paths:
+    /api/v1/blacklist:
+        get:
+            tags:
+                - FriendService
+            description: GetBlacklist get blacklist
+            operationId: FriendService_GetBlacklist
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetBlacklistResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - FriendService
+            description: AddToBlacklist add user to blacklist
+            operationId: FriendService_AddToBlacklist
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AddToBlacklistRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/blacklist/{blockedUserId}:
+        delete:
+            tags:
+                - FriendService
+            description: RemoveFromBlacklist remove user from blacklist
+            operationId: FriendService_RemoveFromBlacklist
+            parameters:
+                - name: blockedUserId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/calls:
+        post:
+            tags:
+                - RtcService
+            description: InitiateCall initiate a call
+            operationId: RtcService_InitiateCall
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/InitiateCallRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CallSession'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/calls/logs:
+        get:
+            tags:
+                - RtcService
+            description: ListCallLogs list call logs
+            operationId: RtcService_ListCallLogs
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCallLogsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/calls/{callId}:
+        get:
+            tags:
+                - RtcService
+            description: GetCallSession get call session
+            operationId: RtcService_GetCallSession
+            parameters:
+                - name: callId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CallSession'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/calls/{callId}/end:
+        post:
+            tags:
+                - RtcService
+            description: EndCall end a call
+            operationId: RtcService_EndCall
+            parameters:
+                - name: callId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EndCallRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/calls/{callId}/join:
+        post:
+            tags:
+                - RtcService
+            description: JoinCall join a call
+            operationId: RtcService_JoinCall
+            parameters:
+                - name: callId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/JoinCallRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CallSession'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/calls/{callId}/reject:
+        post:
+            tags:
+                - RtcService
+            description: RejectCall reject a call
+            operationId: RtcService_RejectCall
+            parameters:
+                - name: callId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RejectCallRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations:
+        get:
+            tags:
+                - ConversationService
+            description: GetConversations get conversation list
+            operationId: ConversationService_GetConversations
+            parameters:
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: updatedBefore
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetConversationsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations/unread/total:
+        get:
+            tags:
+                - ConversationService
+            description: GetTotalUnread get total unread count
+            operationId: ConversationService_GetTotalUnread
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetTotalUnreadResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations/{conversationId}:
+        get:
+            tags:
+                - ConversationService
+            description: GetConversation get conversation detail
+            operationId: ConversationService_GetConversation
+            parameters:
+                - name: conversationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Conversation'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - ConversationService
+            description: DeleteConversation delete conversation
+            operationId: ConversationService_DeleteConversation
+            parameters:
+                - name: conversationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations/{conversationId}/auto-delete:
+        post:
+            tags:
+                - ConversationService
+            description: SetAutoDelete set auto-delete duration
+            operationId: ConversationService_SetAutoDelete
+            parameters:
+                - name: conversationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetAutoDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations/{conversationId}/burn-after-reading:
+        post:
+            tags:
+                - ConversationService
+            description: SetBurnAfterReading set burn-after-reading duration
+            operationId: ConversationService_SetBurnAfterReading
+            parameters:
+                - name: conversationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetBurnAfterReadingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations/{conversationId}/clear-unread:
+        post:
+            tags:
+                - ConversationService
+            description: ClearUnread clear unread count
+            operationId: ConversationService_ClearUnread
+            parameters:
+                - name: conversationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ClearUnreadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations/{conversationId}/mute:
+        post:
+            tags:
+                - ConversationService
+            description: SetMuted mute/unmute conversation
+            operationId: ConversationService_SetMuted
+            parameters:
+                - name: conversationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetMutedRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations/{conversationId}/pin:
+        post:
+            tags:
+                - ConversationService
+            description: SetPinned pin/unpin conversation
+            operationId: ConversationService_SetPinned
+            parameters:
+                - name: conversationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetPinnedRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/conversations/{conversationId}/sequence:
+        get:
+            tags:
+                - MessageService
+            description: GetConversationSequence get conversation sequence
+            operationId: MessageService_GetConversationSequence
+            parameters:
+                - name: conversationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetConversationSequenceResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/files:
+        get:
+            tags:
+                - FileService
+            description: ListUserFiles list user files
+            operationId: FileService_ListUserFiles
+            parameters:
+                - name: fileType
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserFilesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/files/download/url:
+        post:
+            tags:
+                - FileService
+            description: GenerateDownloadURL generate download URL
+            operationId: FileService_GenerateDownloadURL
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GenerateDownloadURLRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenerateDownloadURLResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/files/upload/complete:
+        post:
+            tags:
+                - FileService
+            description: CompleteUpload complete upload
+            operationId: FileService_CompleteUpload
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CompleteUploadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/FileInfo'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/files/upload/token:
+        post:
+            tags:
+                - FileService
+            description: GenerateUploadToken generate upload token
+            operationId: FileService_GenerateUploadToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GenerateUploadTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenerateUploadTokenResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/files/{fileId}:
+        get:
+            tags:
+                - FileService
+            description: GetFileInfo get file info
+            operationId: FileService_GetFileInfo
+            parameters:
+                - name: fileId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/FileInfo'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - FileService
+            description: DeleteFile delete file
+            operationId: FileService_DeleteFile
+            parameters:
+                - name: fileId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/friend-requests:
+        get:
+            tags:
+                - FriendService
+            description: GetFriendRequests get friend request list
+            operationId: FriendService_GetFriendRequests
+            parameters:
+                - name: requestType
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetFriendRequestsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - FriendService
+            description: SendFriendRequest send friend request
+            operationId: FriendService_SendFriendRequest
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendFriendRequestRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/friend-requests/{requestId}:
+        post:
+            tags:
+                - FriendService
+            description: HandleFriendRequest handle friend request (accept/reject)
+            operationId: FriendService_HandleFriendRequest
+            parameters:
+                - name: requestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/HandleFriendRequestRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/friends:
+        get:
+            tags:
+                - FriendService
+            description: GetFriendList get friend list
+            operationId: FriendService_GetFriendList
+            parameters:
+                - name: lastUpdateTime
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetFriendListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/friends/{friendId}:
+        delete:
+            tags:
+                - FriendService
+            description: DeleteFriend delete friend
+            operationId: FriendService_DeleteFriend
+            parameters:
+                - name: friendId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/friends/{friendId}/remark:
+        post:
+            tags:
+                - FriendService
+            description: UpdateRemark update friend remark
+            operationId: FriendService_UpdateRemark
+            parameters:
+                - name: friendId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateRemarkRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups:
+        post:
+            tags:
+                - GroupService
+            description: |-
+                -------------------------------group management-----------------------------
+                 CreateGroup create group
+            operationId: GroupService_CreateGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateGroupResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/join-by-qrcode:
+        post:
+            tags:
+                - GroupService
+            description: JoinGroupByQRCode join group by scanning QR code
+            operationId: GroupService_JoinGroupByQRCode
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/JoinGroupByQRCodeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/JoinGroupByQRCodeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/join-by-user:
+        get:
+            tags:
+                - GroupService
+            description: GetUserGroups get list of groups joined by user (called by gateway for HTTP endpoint)
+            operationId: GroupService_GetUserGroups
+            parameters:
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: lastUpdateTime
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetUserGroupsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}:
+        get:
+            tags:
+                - GroupService
+            description: GetGroupInfo get group info (called by Message Service)
+            operationId: GroupService_GetGroupInfo
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetGroupInfoResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - GroupService
+            description: UpdateGroup update group info
+            operationId: GroupService_UpdateGroup
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - GroupService
+            description: DisbandGroup dissolve group
+            operationId: GroupService_DisbandGroup
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/join:
+        post:
+            tags:
+                - GroupService
+            description: |-
+                -------------------------------join requests-----------------------------
+                 JoinGroup join group (by request or direct join)
+            operationId: GroupService_JoinGroup
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/JoinGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/JoinGroupResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/members:
+        get:
+            tags:
+                - GroupService
+            description: GetGroupMembers get group member list (called by Message Service)
+            operationId: GroupService_GetGroupMembers
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetGroupMembersResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - GroupService
+            description: InviteMembers invite members
+            operationId: GroupService_InviteMembers
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/InviteMembersRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/members/{targetUserId}:
+        delete:
+            tags:
+                - GroupService
+            description: RemoveMember remove member
+            operationId: GroupService_RemoveMember
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: targetUserId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/members/{targetUserId}/mute:
+        put:
+            tags:
+                - GroupService
+            description: MuteMember mute member
+            operationId: GroupService_MuteMember
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: targetUserId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MuteMemberRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - GroupService
+            description: UnmuteMember unmute member
+            operationId: GroupService_UnmuteMember
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: targetUserId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/members/{targetUserId}/role:
+        put:
+            tags:
+                - GroupService
+            description: UpdateMemberRole update member role
+            operationId: GroupService_UpdateMemberRole
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: targetUserId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateMemberRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/mute:
+        put:
+            tags:
+                - GroupService
+            description: SetGroupMute set global group mute
+            operationId: GroupService_SetGroupMute
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetGroupMuteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/nickname:
+        put:
+            tags:
+                - GroupService
+            description: UpdateMemberNickname update group nickname
+            operationId: GroupService_UpdateMemberNickname
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateMemberNicknameRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/pin:
+        put:
+            tags:
+                - GroupService
+            description: PinGroupMessage pin group message
+            operationId: GroupService_PinGroupMessage
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PinGroupMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/pin/{messageId}:
+        delete:
+            tags:
+                - GroupService
+            description: UnpinGroupMessage unpin group message
+            operationId: GroupService_UnpinGroupMessage
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/pins:
+        get:
+            tags:
+                - GroupService
+            description: GetPinnedMessages get pinned group message list
+            operationId: GroupService_GetPinnedMessages
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetPinnedMessagesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/qrcode:
+        get:
+            tags:
+                - GroupService
+            description: |-
+                -------------------------------QR code-----------------------------
+                 GetGroupQRCode get group QR code
+            operationId: GroupService_GetGroupQRCode
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetGroupQRCodeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/qrcode/refresh:
+        post:
+            tags:
+                - GroupService
+            description: RefreshGroupQRCode refresh group QR code (invalidate old code)
+            operationId: GroupService_RefreshGroupQRCode
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RefreshGroupQRCodeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetGroupQRCodeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/quit:
+        put:
+            tags:
+                - GroupService
+            description: QuitGroup quit group
+            operationId: GroupService_QuitGroup
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/QuitGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/remark:
+        put:
+            tags:
+                - GroupService
+            description: UpdateMemberRemark set/clear group remark (visible only to self)
+            operationId: GroupService_UpdateMemberRemark
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateMemberRemarkRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/requests:
+        get:
+            tags:
+                - GroupService
+            description: GetJoinRequests get join group request list
+            operationId: GroupService_GetJoinRequests
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetJoinRequestsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/requests/{requestId}:
+        post:
+            tags:
+                - GroupService
+            description: HandleJoinRequest handle join group request
+            operationId: GroupService_HandleJoinRequest
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: requestId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/HandleJoinRequestRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/settings:
+        get:
+            tags:
+                - GroupService
+            description: GetGroupSettings get group settings
+            operationId: GroupService_GetGroupSettings
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetGroupSettingsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - GroupService
+            description: UpdateGroupSettings update group settings
+            operationId: GroupService_UpdateGroupSettings
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateGroupSettingsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/groups/{groupId}/transfer:
+        post:
+            tags:
+                - GroupService
+            description: TransferOwnership transfer group ownership
+            operationId: GroupService_TransferOwnership
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TransferOwnershipRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/meetings:
+        get:
+            tags:
+                - RtcService
+            description: ListMeetings list meetings
+            operationId: RtcService_ListMeetings
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListMeetingsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - RtcService
+            description: CreateMeeting create a meeting
+            operationId: RtcService_CreateMeeting
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateMeetingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Meeting'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/meetings/{roomId}:
+        get:
+            tags:
+                - RtcService
+            description: GetMeeting get meeting detail
+            operationId: RtcService_GetMeeting
+            parameters:
+                - name: roomId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Meeting'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/meetings/{roomId}/end:
+        post:
+            tags:
+                - RtcService
+            description: EndMeeting end a meeting
+            operationId: RtcService_EndMeeting
+            parameters:
+                - name: roomId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EndMeetingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/meetings/{roomId}/join:
+        post:
+            tags:
+                - RtcService
+            description: JoinMeeting join a meeting
+            operationId: RtcService_JoinMeeting
+            parameters:
+                - name: roomId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/JoinMeetingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Meeting'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages:
+        get:
+            tags:
+                - MessageService
+            description: GetMessages get message list
+            operationId: MessageService_GetMessages
+            parameters:
+                - name: conversationId
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetMessagesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - MessageService
+            description: SendMessage send message
+            operationId: MessageService_SendMessage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendMessageResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/ack-read:
+        post:
+            tags:
+                - MessageService
+            description: AckReadTriggers acknowledge burn-after-reading triggers
+            operationId: MessageService_AckReadTriggers
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AckReadTriggersRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AckReadTriggersResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/after:
+        get:
+            tags:
+                - MessageService
+            description: GetMessagesAfter get messages after anchor
+            operationId: MessageService_GetMessagesAfter
+            parameters:
+                - name: conversationId
+                  in: query
+                  schema:
+                    type: string
+                - name: anchorMessageId
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetMessagesAfterResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/around:
+        get:
+            tags:
+                - MessageService
+            description: GetMessagesAroundAnchor get messages around anchor
+            operationId: MessageService_GetMessagesAroundAnchor
+            parameters:
+                - name: conversationId
+                  in: query
+                  schema:
+                    type: string
+                - name: anchorMessageId
+                  in: query
+                  schema:
+                    type: string
+                - name: before
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: after
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetMessagesAroundAnchorResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/before:
+        get:
+            tags:
+                - MessageService
+            description: GetMessagesBefore get messages before anchor
+            operationId: MessageService_GetMessagesBefore
+            parameters:
+                - name: conversationId
+                  in: query
+                  schema:
+                    type: string
+                - name: anchorMessageId
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetMessagesBeforeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/bulk-read:
+        post:
+            tags:
+                - MessageService
+            description: MarkMessagesRead mark messages as read by message IDs
+            operationId: MessageService_MarkMessagesRead
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MarkMessagesReadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MarkMessagesReadResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/first-unread:
+        get:
+            tags:
+                - MessageService
+            description: GetFirstUnreadAnchor get first unread message anchor
+            operationId: MessageService_GetFirstUnreadAnchor
+            parameters:
+                - name: conversationId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetFirstUnreadAnchorResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/read:
+        post:
+            tags:
+                - MessageService
+            description: MarkAsRead mark messages as read
+            operationId: MessageService_MarkAsRead
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MarkAsReadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/search:
+        get:
+            tags:
+                - MessageService
+            description: SearchMessages search messages
+            operationId: MessageService_SearchMessages
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: conversationId
+                  in: query
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SearchMessagesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/typing:
+        post:
+            tags:
+                - MessageService
+            description: SendTyping send typing status
+            operationId: MessageService_SendTyping
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendTypingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/unread-count:
+        get:
+            tags:
+                - MessageService
+            description: GetUnreadCount get unread count
+            operationId: MessageService_GetUnreadCount
+            parameters:
+                - name: conversationId
+                  in: query
+                  schema:
+                    type: string
+                - name: lastReadSeq
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetUnreadCountResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/{messageId}:
+        get:
+            tags:
+                - MessageService
+            description: GetMessageById get message by ID
+            operationId: MessageService_GetMessageById
+            parameters:
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Message'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - MessageService
+            description: DeleteMessage delete a message
+            operationId: MessageService_DeleteMessage
+            parameters:
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/{messageId}/recall:
+        post:
+            tags:
+                - MessageService
+            description: RecallMessage recall a message
+            operationId: MessageService_RecallMessage
+            parameters:
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RecallMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/messages/{messageId}/receipts:
+        get:
+            tags:
+                - MessageService
+            description: GetReadReceipts get read receipts
+            operationId: MessageService_GetReadReceipts
+            parameters:
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: conversationId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetReadReceiptsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/push/send:
+        post:
+            tags:
+                - PushService
+            description: |-
+                SendPush send push notifications to a specified user list
+                 Called by other services or directly by gateway for offline push
+            operationId: PushService_SendPush
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendPushRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendPushResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/login:
+        post:
+            tags:
+                - UserService
+            description: Login user login
+            operationId: UserService_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/logout:
+        post:
+            tags:
+                - UserService
+            description: Logout user logout
+            operationId: UserService_Logout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/me:
+        get:
+            tags:
+                - UserService
+            description: |-
+                -------------------------personal profile----------------------------------
+                 GetProfile get profile
+            operationId: UserService_GetProfile
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserProfileResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - UserService
+            description: UpdateProfile update profile
+            operationId: UserService_UpdateProfile
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateProfileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserProfileResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/me/email/bind:
+        post:
+            tags:
+                - UserService
+            description: BindEmail bind email
+            operationId: UserService_BindEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BindEmailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BindEmailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/me/email/change:
+        post:
+            tags:
+                - UserService
+            description: ChangeEmail change email
+            operationId: UserService_ChangeEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChangeEmailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChangeEmailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/me/phone/bind:
+        post:
+            tags:
+                - UserService
+            description: BindPhone bind phone number
+            operationId: UserService_BindPhone
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BindPhoneRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BindPhoneResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/me/phone/change:
+        post:
+            tags:
+                - UserService
+            description: ChangePhone change phone number
+            operationId: UserService_ChangePhone
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChangePhoneRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChangePhoneResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/me/settings:
+        get:
+            tags:
+                - UserService
+            description: |-
+                -------------------------settings----------------------------------
+                 GetSettings get user settings
+            operationId: UserService_GetSettings
+            parameters:
+                - name: userId
+                  in: query
+                  description: |-
+                    user_id is the target user whose settings to retrieve.
+                     When empty, settings of the current authenticated user (from metadata) are returned.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserSettingsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - UserService
+            description: UpdateSettings update user settings
+            operationId: UserService_UpdateSettings
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateSettingsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserSettingsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/password/change:
+        post:
+            tags:
+                - UserService
+            description: ChangePassword change password
+            operationId: UserService_ChangePassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChangePasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/password/reset:
+        post:
+            tags:
+                - UserService
+            description: ResetPassword reset password (forgot password)
+            operationId: UserService_ResetPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResetPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/push_token:
+        post:
+            tags:
+                - UserService
+            description: |-
+                -------------------------push token----------------------------------
+                 UpdatePushToken update push token
+            operationId: UserService_UpdatePushToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdatePushTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/qrcode:
+        get:
+            tags:
+                - UserService
+            description: GetUserByQRCode get user by QR code
+            operationId: UserService_GetUserByQRCode
+            parameters:
+                - name: qrcode
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserInfoResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/qrcode/refresh:
+        post:
+            tags:
+                - UserService
+            description: |-
+                -------------------------QR code----------------------------------
+                 RefreshQRCode refresh QR code
+            operationId: UserService_RefreshQRCode
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RefreshQRCodeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QRCodeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/refresh:
+        post:
+            tags:
+                - UserService
+            description: RefreshToken refresh access token
+            operationId: UserService_RefreshToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RefreshTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RefreshTokenResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/register:
+        post:
+            tags:
+                - UserService
+            description: Register user registration
+            operationId: UserService_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RegisterResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/search:
+        get:
+            tags:
+                - UserService
+            description: SearchUsers search users
+            operationId: UserService_SearchUsers
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SearchUsersResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/send-code:
+        post:
+            tags:
+                - UserService
+            description: SendVerificationCode send verification code
+            operationId: UserService_SendVerificationCode
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendVerificationCodeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendVerificationCodeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/users/{targetUserId}:
+        get:
+            tags:
+                - UserService
+            description: |-
+                -------------------------user search----------------------------------
+                 GetUserInfo get user info (query other users)
+            operationId: UserService_GetUserInfo
+            parameters:
+                - name: targetUserId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserInfoResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        AckReadEvent:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                messageId:
+                    type: string
+                ackedAt:
+                    type: string
+                    format: date-time
+            description: AckReadEvent
+        AckReadTriggersRequest:
+            type: object
+            properties:
+                events:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AckReadEvent'
+            description: AckReadTriggersRequest
+        AckReadTriggersResponse:
+            type: object
+            properties:
+                ackedCount:
+                    type: integer
+                    format: int32
+                messageIds:
+                    type: array
+                    items:
+                        type: string
+            description: AckReadTriggersResponse
+        AddToBlacklistRequest:
+            type: object
+            properties:
+                blockedUserId:
+                    type: string
+            description: AddToBlacklistRequest add to blacklist request
+        BindEmailRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+                verifyCode:
+                    type: string
+        BindEmailResponse:
+            type: object
+            properties:
+                email:
+                    type: string
+                isPrimary:
+                    type: boolean
+        BindPhoneRequest:
+            type: object
+            properties:
+                phoneNumber:
+                    type: string
+                verifyCode:
+                    type: string
+        BindPhoneResponse:
+            type: object
+            properties:
+                phoneNumber:
+                    type: string
+                isPrimary:
+                    type: boolean
+        BlockedUser:
+            type: object
+            properties:
+                userId:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+            description: BlockedUser blocked user info
+        CallLog:
+            type: object
+            properties:
+                callId:
+                    type: string
+                targetId:
+                    type: string
+                callType:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                direction:
+                    type: string
+                startedAt:
+                    type: string
+                    format: date-time
+                endedAt:
+                    type: string
+                    format: date-time
+                duration:
+                    type: string
+            description: CallLog call log
+        CallSession:
+            type: object
+            properties:
+                callId:
+                    type: string
+                callerId:
+                    type: string
+                calleeId:
+                    type: string
+                callType:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                startedAt:
+                    type: string
+                    format: date-time
+                endedAt:
+                    type: string
+                    format: date-time
+                duration:
+                    type: string
+                roomName:
+                    type: string
+                token:
+                    type: string
+            description: CallSession call session info
+        ChangeEmailRequest:
+            type: object
+            properties:
+                oldEmail:
+                    type: string
+                newEmail:
+                    type: string
+                newVerifyCode:
+                    type: string
+                oldVerifyCode:
+                    type: string
+                deviceId:
+                    type: string
+        ChangeEmailResponse:
+            type: object
+            properties:
+                oldEmail:
+                    type: string
+                newEmail:
+                    type: string
+        ChangePasswordRequest:
+            type: object
+            properties:
+                deviceId:
+                    type: string
+                oldPassword:
+                    type: string
+                newPassword:
+                    type: string
+            description: ChangePasswordRequest change password request
+        ChangePhoneRequest:
+            type: object
+            properties:
+                oldPhoneNumber:
+                    type: string
+                newPhoneNumber:
+                    type: string
+                newVerifyCode:
+                    type: string
+                oldVerifyCode:
+                    type: string
+                deviceId:
+                    type: string
+        ChangePhoneResponse:
+            type: object
+            properties:
+                oldPhoneNumber:
+                    type: string
+                newPhoneNumber:
+                    type: string
+        ClearUnreadRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+            description: ClearUnreadRequest clear unread request
+        CompleteUploadRequest:
+            type: object
+            properties:
+                fileId:
+                    type: string
+            description: CompleteUploadRequest complete upload request
+        Conversation:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                conversationType:
+                    type: integer
+                    format: enum
+                targetId:
+                    type: string
+                targetUserId:
+                    type: string
+                memberIds:
+                    type: array
+                    items:
+                        type: string
+                lastMessageId:
+                    type: string
+                lastMessageContent:
+                    type: string
+                lastMessageTime:
+                    type: string
+                    format: date-time
+                unreadCount:
+                    type: integer
+                    format: int32
+                isPinned:
+                    type: boolean
+                isMuted:
+                    type: boolean
+                pinTime:
+                    type: string
+                    format: date-time
+                burnAfterReading:
+                    type: integer
+                    format: int32
+                autoDeleteDuration:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+            description: Conversation conversation info
+        CreateGroupRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                avatar:
+                    type: string
+                memberIds:
+                    type: array
+                    items:
+                        type: string
+            description: CreateGroupRequest create group request
+        CreateGroupResponse:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                name:
+                    type: string
+                avatar:
+                    type: string
+                ownerId:
+                    type: string
+                memberCount:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                    format: date-time
+            description: CreateGroupResponse create group response
+        CreateMeetingRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                password:
+                    type: string
+                maxParticipants:
+                    type: integer
+                    format: int32
+            description: CreateMeetingRequest create meeting request
+        EndCallRequest:
+            type: object
+            properties:
+                callId:
+                    type: string
+            description: EndCallRequest end call request
+        EndMeetingRequest:
+            type: object
+            properties:
+                roomId:
+                    type: string
+            description: EndMeetingRequest end meeting request
+        FileInfo:
+            type: object
+            properties:
+                fileId:
+                    type: string
+                fileName:
+                    type: string
+                fileType:
+                    type: integer
+                    format: enum
+                fileSize:
+                    type: string
+                mimeType:
+                    type: string
+                storagePath:
+                    type: string
+                thumbnailPath:
+                    type: string
+                bucketName:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                    format: date-time
+                expiresAt:
+                    type: string
+                    format: date-time
+            description: FileInfo file information
+        Friend:
+            type: object
+            properties:
+                userId:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                remark:
+                    type: string
+            description: Friend friend info
+        FriendRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                fromUserId:
+                    type: string
+                fromNickname:
+                    type: string
+                fromAvatar:
+                    type: string
+                toUserId:
+                    type: string
+                message:
+                    type: string
+                requestType:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+            description: FriendRequest friend request info
+        GenerateDownloadURLRequest:
+            type: object
+            properties:
+                fileId:
+                    type: string
+                expiresMinutes:
+                    type: integer
+                    format: int32
+            description: GenerateDownloadURLRequest generate download URL request
+        GenerateDownloadURLResponse:
+            type: object
+            properties:
+                downloadUrl:
+                    type: string
+                expiresAt:
+                    type: string
+            description: GenerateDownloadURLResponse generate download URL response
+        GenerateUploadTokenRequest:
+            type: object
+            properties:
+                fileName:
+                    type: string
+                fileSize:
+                    type: string
+                mimeType:
+                    type: string
+                fileType:
+                    type: integer
+                    format: enum
+                expiresHours:
+                    type: integer
+                    format: int32
+            description: GenerateUploadTokenRequest generate upload token request
+        GenerateUploadTokenResponse:
+            type: object
+            properties:
+                fileId:
+                    type: string
+                uploadUrl:
+                    type: string
+                expiresAt:
+                    type: string
+            description: GenerateUploadTokenResponse generate upload token response
+        GetBlacklistResponse:
+            type: object
+            properties:
+                blockedUsers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BlockedUser'
+            description: GetBlacklistResponse get blacklist response
+        GetConversationSequenceResponse:
+            type: object
+            properties:
+                currentSeq:
+                    type: string
+            description: GetConversationSequenceResponse
+        GetConversationsResponse:
+            type: object
+            properties:
+                conversations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Conversation'
+            description: GetConversationsResponse get conversation list response
+        GetFirstUnreadAnchorResponse:
+            type: object
+            properties:
+                firstUnreadMessageId:
+                    type: string
+                unreadCount:
+                    type: string
+                firstUnreadMessage:
+                    $ref: '#/components/schemas/Message'
+            description: GetFirstUnreadAnchorResponse
+        GetFriendListResponse:
+            type: object
+            properties:
+                friends:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Friend'
+            description: GetFriendListResponse get friend list response
+        GetFriendRequestsResponse:
+            type: object
+            properties:
+                requests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/FriendRequest'
+            description: GetFriendRequestsResponse get friend requests response
+        GetGroupInfoResponse:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                name:
+                    type: string
+                avatar:
+                    type: string
+                announcement:
+                    type: string
+                description:
+                    type: string
+                ownerId:
+                    type: string
+                memberCount:
+                    type: integer
+                    format: int32
+                maxMembers:
+                    type: integer
+                    format: int32
+                joinVerify:
+                    type: boolean
+                isMuted:
+                    type: boolean
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                displayName:
+                    type: string
+            description: GetGroupInfoResponse get group info response
+        GetGroupMembersResponse:
+            type: object
+            properties:
+                members:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupMember'
+                total:
+                    type: string
+            description: GetGroupMembersResponse get group members response
+        GetGroupQRCodeResponse:
+            type: object
+            properties:
+                token:
+                    type: string
+                deepLink:
+                    type: string
+                expireAt:
+                    type: string
+            description: GetGroupQRCodeResponse get group QR code response
+        GetGroupSettingsResponse:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                joinVerify:
+                    type: boolean
+                allowMemberInvite:
+                    type: boolean
+                allowViewHistory:
+                    type: boolean
+                allowAddFriend:
+                    type: boolean
+                allowMemberModify:
+                    type: boolean
+                showMemberNickname:
+                    type: boolean
+            description: GetGroupSettingsResponse get group settings response
+        GetJoinRequestsResponse:
+            type: object
+            properties:
+                requests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/JoinRequest'
+                total:
+                    type: string
+            description: GetJoinRequestsResponse get join requests response
+        GetMessagesAfterResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Message'
+                hasMore:
+                    type: boolean
+            description: GetMessagesAfterResponse
+        GetMessagesAroundAnchorResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Message'
+                hasMoreBefore:
+                    type: boolean
+                hasMoreAfter:
+                    type: boolean
+            description: GetMessagesAroundAnchorResponse
+        GetMessagesBeforeResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Message'
+                hasMore:
+                    type: boolean
+            description: GetMessagesBeforeResponse
+        GetMessagesResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Message'
+                hasMore:
+                    type: boolean
+            description: GetMessagesResponse get messages response
+        GetPinnedMessagesResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/PinnedMessage'
+                total:
+                    type: integer
+                    format: int32
+                topMessage:
+                    $ref: '#/components/schemas/PinnedMessage'
+                version:
+                    type: string
+            description: GetPinnedMessagesResponse get pinned messages response
+        GetReadReceiptsResponse:
+            type: object
+            properties:
+                receipts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReadReceipt'
+            description: GetReadReceiptsResponse
+        GetTotalUnreadResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+            description: GetTotalUnreadResponse get total unread response
+        GetUnreadCountResponse:
+            type: object
+            properties:
+                unreadCount:
+                    type: string
+            description: GetUnreadCountResponse
+        GetUserGroupsResponse:
+            type: object
+            properties:
+                groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupInfo'
+                updateTime:
+                    type: string
+                total:
+                    type: string
+            description: GetUserGroupsResponse get user groups response
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        GroupInfo:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                name:
+                    type: string
+                avatar:
+                    type: string
+                memberCount:
+                    type: integer
+                    format: int32
+                updatedAt:
+                    type: string
+                    format: date-time
+                displayName:
+                    type: string
+            description: GroupInfo a group info
+        GroupMember:
+            type: object
+            properties:
+                userId:
+                    type: string
+                groupNickname:
+                    type: string
+                role:
+                    type: integer
+                    format: enum
+                joinedAt:
+                    type: string
+                    format: date-time
+                userInfo:
+                    $ref: '#/components/schemas/UserInfo'
+                mutedUntil:
+                    type: string
+                    format: date-time
+            description: GroupMember a group member
+        HandleFriendRequestRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                action:
+                    type: integer
+                    format: enum
+            description: HandleFriendRequestRequest handle friend request
+        HandleJoinRequestRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                requestId:
+                    type: string
+                accept:
+                    type: boolean
+            description: HandleJoinRequestRequest handle join request request
+        InitiateCallRequest:
+            type: object
+            properties:
+                calleeId:
+                    type: string
+                callType:
+                    type: integer
+                    format: enum
+            description: InitiateCallRequest initiate call request
+        InviteMembersRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                inviteeIds:
+                    type: array
+                    items:
+                        type: string
+            description: InviteMembersRequest invite members request
+        JoinCallRequest:
+            type: object
+            properties:
+                callId:
+                    type: string
+            description: JoinCallRequest join call request
+        JoinGroupByQRCodeRequest:
+            type: object
+            properties:
+                token:
+                    type: string
+            description: JoinGroupByQRCodeRequest join group by QR code request
+        JoinGroupByQRCodeResponse:
+            type: object
+            properties:
+                joined:
+                    type: boolean
+                groupId:
+                    type: string
+                needVerify:
+                    type: boolean
+                requestId:
+                    type: string
+            description: JoinGroupByQRCodeResponse join group by QR code response
+        JoinGroupRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                message:
+                    type: string
+                inviterId:
+                    type: string
+            description: JoinGroupRequest join group request
+        JoinGroupResponse:
+            type: object
+            properties:
+                needVerify:
+                    type: boolean
+                requestId:
+                    type: string
+            description: JoinGroupResponse join group response
+        JoinMeetingRequest:
+            type: object
+            properties:
+                roomId:
+                    type: string
+                password:
+                    type: string
+            description: JoinMeetingRequest join meeting request
+        JoinRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                groupId:
+                    type: string
+                userId:
+                    type: string
+                inviterId:
+                    type: string
+                message:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                createdAt:
+                    type: string
+                    format: date-time
+                userInfo:
+                    $ref: '#/components/schemas/UserInfo'
+            description: JoinRequest a group join request
+        ListCallLogsResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                callLogs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CallLog'
+            description: ListCallLogsResponse list call logs response
+        ListMeetingsResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                meetings:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Meeting'
+            description: ListMeetingsResponse list meetings response
+        ListUserFilesResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/FileInfo'
+            description: ListUserFilesResponse list user files response
+        LoginRequest:
+            type: object
+            properties:
+                account:
+                    type: string
+                password:
+                    type: string
+                deviceType:
+                    type: integer
+                    format: enum
+                deviceId:
+                    type: string
+                clientVersion:
+                    type: string
+                ipAddress:
+                    type: string
+            description: LoginRequest login request
+        LoginResponse:
+            type: object
+            properties:
+                userId:
+                    type: string
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+                expiresIn:
+                    type: string
+                user:
+                    $ref: '#/components/schemas/UserInfo'
+            description: LoginResponse login response
+        LogoutRequest:
+            type: object
+            properties:
+                deviceId:
+                    type: string
+            description: LogoutRequest logout request
+        MarkAsReadRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                lastReadSeq:
+                    type: string
+            description: MarkAsReadRequest mark as read
+        MarkMessagesReadRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                messageIds:
+                    type: array
+                    items:
+                        type: string
+            description: MarkMessagesReadRequest mark messages as read by IDs
+        MarkMessagesReadResponse:
+            type: object
+            properties:
+                markedCount:
+                    type: integer
+                    format: int32
+                messageIds:
+                    type: array
+                    items:
+                        type: string
+            description: MarkMessagesReadResponse
+        Meeting:
+            type: object
+            properties:
+                roomId:
+                    type: string
+                title:
+                    type: string
+                creatorId:
+                    type: string
+                hasPassword:
+                    type: boolean
+                maxParticipants:
+                    type: integer
+                    format: int32
+                currentParticipants:
+                    type: integer
+                    format: int32
+                startedAt:
+                    type: string
+                    format: date-time
+                endedAt:
+                    type: string
+                    format: date-time
+                isActive:
+                    type: boolean
+                token:
+                    type: string
+            description: Meeting meeting info
+        Message:
+            type: object
+            properties:
+                messageId:
+                    type: string
+                conversationId:
+                    type: string
+                senderId:
+                    type: string
+                contentType:
+                    type: integer
+                    format: enum
+                content:
+                    type: string
+                replyTo:
+                    $ref: '#/components/schemas/Message'
+                atUsers:
+                    type: array
+                    items:
+                        type: string
+                timestamp:
+                    type: string
+                    format: date-time
+                seq:
+                    type: string
+                localId:
+                    type: string
+                isRead:
+                    type: boolean
+                isDeleted:
+                    type: boolean
+                readAt:
+                    type: string
+            description: Message message
+        MuteMemberRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                targetUserId:
+                    type: string
+                type:
+                    type: integer
+                    format: enum
+                durationMinutes:
+                    type: integer
+                    format: int32
+            description: MuteMemberRequest mute member request
+        PinGroupMessageRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                messageId:
+                    type: string
+            description: PinGroupMessageRequest pin group message request
+        PinnedMessage:
+            type: object
+            properties:
+                messageId:
+                    type: string
+                content:
+                    type: string
+                pinnedBy:
+                    type: string
+                pinnedAt:
+                    type: string
+                contentType:
+                    type: integer
+                    format: enum
+                messageSeq:
+                    type: string
+            description: PinnedMessage a pinned message in a group
+        QRCodeResponse:
+            type: object
+            properties:
+                qrcodeUrl:
+                    type: string
+                expiresAt:
+                    type: string
+                    format: date-time
+            description: QRCodeResponse QR code response
+        QuitGroupRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+            description: QuitGroupRequest quit group request
+        ReadReceipt:
+            type: object
+            properties:
+                userId:
+                    type: string
+                readAt:
+                    type: string
+                    format: date-time
+                isRead:
+                    type: boolean
+            description: ReadReceipt
+        RecallMessageRequest:
+            type: object
+            properties:
+                messageId:
+                    type: string
+            description: RecallMessageRequest recall message
+        RefreshGroupQRCodeRequest:
+            type: object
+            properties:
+                userId:
+                    type: string
+                groupId:
+                    type: string
+            description: RefreshGroupQRCodeRequest refresh group QR code request
+        RefreshQRCodeRequest:
+            type: object
+            properties: {}
+            description: RefreshQRCodeRequest refresh QR code request
+        RefreshTokenRequest:
+            type: object
+            properties:
+                refreshToken:
+                    type: string
+            description: RefreshTokenRequest refresh token request
+        RefreshTokenResponse:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+                expiresIn:
+                    type: string
+            description: RefreshTokenResponse refresh token response
+        RegisterRequest:
+            type: object
+            properties:
+                phoneNumber:
+                    type: string
+                email:
+                    type: string
+                password:
+                    type: string
+                verifyCode:
+                    type: string
+                nickname:
+                    type: string
+                deviceType:
+                    type: integer
+                    format: enum
+                deviceId:
+                    type: string
+                clientVersion:
+                    type: string
+            description: RegisterRequest registration request
+        RegisterResponse:
+            type: object
+            properties:
+                userId:
+                    type: string
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+                expiresIn:
+                    type: string
+            description: RegisterResponse registration response
+        RejectCallRequest:
+            type: object
+            properties:
+                callId:
+                    type: string
+            description: RejectCallRequest reject call request
+        ResetPasswordRequest:
+            type: object
+            properties:
+                account:
+                    type: string
+                verifyCode:
+                    type: string
+                newPassword:
+                    type: string
+            description: ResetPasswordRequest reset password request
+        SearchMessagesResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Message'
+            description: SearchMessagesResponse
+        SearchUsersResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserBriefInfo'
+            description: SearchUsersResponse search users response
+        SendFriendRequestRequest:
+            type: object
+            properties:
+                toUserId:
+                    type: string
+                message:
+                    type: string
+                source:
+                    type: integer
+                    format: enum
+            description: SendFriendRequestRequest send friend request
+        SendMessageRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                contentType:
+                    type: integer
+                    format: enum
+                content:
+                    type: string
+                replyTo:
+                    $ref: '#/components/schemas/Message'
+                atUsers:
+                    type: array
+                    items:
+                        type: string
+                localId:
+                    type: string
+            description: SendMessageRequest send message request
+        SendMessageResponse:
+            type: object
+            properties:
+                message:
+                    $ref: '#/components/schemas/Message'
+            description: SendMessageResponse send message response
+        SendPushRequest:
+            type: object
+            properties:
+                userIds:
+                    type: array
+                    items:
+                        type: string
+                    description: target user ID list
+                title:
+                    type: string
+                    description: push title
+                content:
+                    type: string
+                    description: push body
+                pushType:
+                    type: integer
+                    description: push type
+                    format: enum
+                extras:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: additional data (key-value pairs), handled by client business logic
+            description: SendPushRequest push request
+        SendPushResponse:
+            type: object
+            properties:
+                successCount:
+                    type: integer
+                    description: number of devices successfully pushed
+                    format: int32
+                failureCount:
+                    type: integer
+                    description: number of devices failed to push
+                    format: int32
+                msgId:
+                    type: string
+                    description: JPush message ID
+            description: SendPushResponse push response
+        SendTypingRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                typing:
+                    type: boolean
+                ttlSeconds:
+                    type: integer
+                    format: int32
+                deviceId:
+                    type: string
+            description: SendTypingRequest send typing request
+        SendVerificationCodeRequest:
+            type: object
+            properties:
+                target:
+                    type: string
+                targetType:
+                    type: integer
+                    format: enum
+                purpose:
+                    type: integer
+                    format: enum
+                deviceId:
+                    type: string
+                ipAddress:
+                    type: string
+            description: SendVerificationCodeRequest send verification code request
+        SendVerificationCodeResponse:
+            type: object
+            properties:
+                codeId:
+                    type: string
+                expiresIn:
+                    type: string
+            description: SendVerificationCodeResponse send verification code response
+        SetAutoDeleteRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                duration:
+                    type: integer
+                    format: int32
+            description: SetAutoDeleteRequest set auto-delete request
+        SetBurnAfterReadingRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                duration:
+                    type: integer
+                    format: int32
+            description: SetBurnAfterReadingRequest set burn-after-reading request
+        SetGroupMuteRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                enabled:
+                    type: boolean
+            description: SetGroupMuteRequest set group mute request
+        SetMutedRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                muted:
+                    type: boolean
+            description: SetMutedRequest set muted status request
+        SetPinnedRequest:
+            type: object
+            properties:
+                conversationId:
+                    type: string
+                pinned:
+                    type: boolean
+            description: SetPinnedRequest set pinned status request
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        TransferOwnershipRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                newOwnerId:
+                    type: string
+            description: TransferOwnershipRequest transfer ownership request
+        UpdateGroupRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                name:
+                    type: string
+                avatar:
+                    type: string
+                announcement:
+                    type: string
+                description:
+                    type: string
+            description: UpdateGroupRequest update group request
+        UpdateGroupSettingsRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                joinVerify:
+                    type: boolean
+                allowMemberInvite:
+                    type: boolean
+                allowViewHistory:
+                    type: boolean
+                allowAddFriend:
+                    type: boolean
+                allowMemberModify:
+                    type: boolean
+                showMemberNickname:
+                    type: boolean
+            description: UpdateGroupSettingsRequest update group settings request
+        UpdateMemberNicknameRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                nickname:
+                    type: string
+            description: UpdateMemberNicknameRequest update member nickname request
+        UpdateMemberRemarkRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                remark:
+                    type: string
+            description: UpdateMemberRemarkRequest update member remark request
+        UpdateMemberRoleRequest:
+            type: object
+            properties:
+                groupId:
+                    type: string
+                targetUserId:
+                    type: string
+                role:
+                    type: integer
+                    format: enum
+            description: UpdateMemberRoleRequest update member role request
+        UpdateProfileRequest:
+            type: object
+            properties:
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                signature:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                birthday:
+                    type: string
+                    format: date-time
+                region:
+                    type: string
+            description: UpdateProfileRequest update profile request
+        UpdatePushTokenRequest:
+            type: object
+            properties:
+                deviceId:
+                    type: string
+                pushToken:
+                    type: string
+                platform:
+                    type: integer
+                    format: enum
+            description: UpdatePushTokenRequest update push token request
+        UpdateRemarkRequest:
+            type: object
+            properties:
+                friendId:
+                    type: string
+                remark:
+                    type: string
+            description: UpdateRemarkRequest update remark request
+        UpdateSettingsRequest:
+            type: object
+            properties:
+                notificationEnabled:
+                    type: boolean
+                soundEnabled:
+                    type: boolean
+                vibrationEnabled:
+                    type: boolean
+                messagePreviewEnabled:
+                    type: boolean
+                friendVerifyRequired:
+                    type: boolean
+                searchByPhone:
+                    type: boolean
+                searchById:
+                    type: boolean
+                language:
+                    type: string
+            description: UpdateSettingsRequest update user settings request
+        UserBriefInfo:
+            type: object
+            properties:
+                userId:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                signature:
+                    type: string
+            description: UserBriefInfo brief user info
+        UserInfo:
+            type: object
+            properties:
+                userId:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                phone:
+                    type: string
+                email:
+                    type: string
+            description: UserInfo basic user info (shared across services)
+        UserInfoResponse:
+            type: object
+            properties:
+                userId:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                signature:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                region:
+                    type: string
+                isFriend:
+                    type: boolean
+                isBlocked:
+                    type: boolean
+            description: UserInfoResponse user info response
+        UserProfileResponse:
+            type: object
+            properties:
+                userId:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                signature:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                birthday:
+                    type: string
+                    format: date-time
+                region:
+                    type: string
+                phone:
+                    type: string
+                email:
+                    type: string
+                qrcodeUrl:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+            description: UserProfileResponse user profile response
+        UserSettingsResponse:
+            type: object
+            properties:
+                userId:
+                    type: string
+                notificationEnabled:
+                    type: boolean
+                soundEnabled:
+                    type: boolean
+                vibrationEnabled:
+                    type: boolean
+                messagePreviewEnabled:
+                    type: boolean
+                friendVerifyRequired:
+                    type: boolean
+                searchByPhone:
+                    type: boolean
+                searchById:
+                    type: boolean
+                language:
+                    type: string
+            description: UserSettingsResponse user settings response
+tags:
+    - name: ConversationService
+      description: ConversationService conversation service
+    - name: FileService
+      description: FileService file service
+    - name: FriendService
+      description: FriendService friend service
+    - name: GroupService
+      description: GroupService group service
+    - name: MessageService
+      description: MessageService message service
+    - name: PushService
+      description: |-
+        PushService push service
+         Sends system push notifications such as APNs/FCM to offline users (based on JPush)
+    - name: RtcService
+      description: RtcService real-time communication service (audio/video calling and meetings)
+    - name: UserService
+      description: UserService user service

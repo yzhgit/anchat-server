@@ -1,0 +1,592 @@
+syntax = "proto3";
+
+package group.v1;
+
+option go_package = "flamingo/api/group/v1;v1";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "user/v1/user.proto";
+import "message/v1/message.proto";
+
+// GroupService group service
+service GroupService {
+  // ========== Internal service APIs ==========
+
+  // IsMember check whether user is a group member (called by Message Service)
+  rpc IsMember(IsMemberRequest) returns (IsMemberResponse);
+
+  // ========== Gateway HTTP APIs ==========
+
+  // GetGroupInfo get group info (called by Message Service)
+  rpc GetGroupInfo(GetGroupInfoRequest) returns (GetGroupInfoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/groups/{group_id}"
+    };
+  }
+
+  // GetGroupMembers get group member list (called by Message Service)
+  rpc GetGroupMembers(GetGroupMembersRequest) returns (GetGroupMembersResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/groups/{group_id}/members"
+    };
+  }
+
+  // GetUserGroups get list of groups joined by user (called by gateway for HTTP endpoint)
+  rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/groups/join-by-user"
+    };
+  }
+
+  // -------------------------------group management-----------------------------
+  // CreateGroup create group
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/groups"
+      body: "*"
+    };
+  }
+
+  // JoinGroupByQRCode join group by scanning QR code
+  rpc JoinGroupByQRCode(JoinGroupByQRCodeRequest) returns (JoinGroupByQRCodeResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/groups/join-by-qrcode"
+      body: "*"
+    };
+  }
+
+  // UpdateGroup update group info
+  rpc UpdateGroup(UpdateGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}"
+      body: "*"
+    };
+  }
+
+  // DisbandGroup dissolve group
+  rpc DisbandGroup(DissolveGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/groups/{group_id}"
+    };
+  }
+
+  // InviteMembers invite members
+  rpc InviteMembers(InviteMembersRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/groups/{group_id}/members"
+      body: "*"
+    };
+  }
+
+  // RemoveMember remove member
+  rpc RemoveMember(RemoveMemberRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/groups/{group_id}/members/{target_user_id}"
+    };
+  }
+
+  // MuteMember mute member
+  rpc MuteMember(MuteMemberRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}/members/{target_user_id}/mute"
+      body: "*"
+    };
+  }
+
+  // UnmuteMember unmute member
+  rpc UnmuteMember(UnmuteMemberRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/groups/{group_id}/members/{target_user_id}/mute"
+    };
+  }
+
+  // UpdateMemberRole update member role
+  rpc UpdateMemberRole(UpdateMemberRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}/members/{target_user_id}/role"
+      body: "*"
+    };
+  }
+
+  // UpdateMemberNickname update group nickname
+  rpc UpdateMemberNickname(UpdateMemberNicknameRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}/nickname"
+      body: "*"
+    };
+  }
+
+  // UpdateMemberRemark set/clear group remark (visible only to self)
+  rpc UpdateMemberRemark(UpdateMemberRemarkRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}/remark"
+      body: "*"
+    };
+  }
+
+  // QuitGroup quit group
+  rpc QuitGroup(QuitGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}/quit"
+      body: "*"
+    };
+  }
+
+  // TransferOwnership transfer group ownership
+  rpc TransferOwnership(TransferOwnershipRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/groups/{group_id}/transfer"
+      body: "*"
+    };
+  }
+
+  // GetGroupSettings get group settings
+  rpc GetGroupSettings(GetGroupSettingsRequest) returns (GetGroupSettingsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/groups/{group_id}/settings"
+    };
+  }
+
+  // UpdateGroupSettings update group settings
+  rpc UpdateGroupSettings(UpdateGroupSettingsRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}/settings"
+      body: "*"
+    };
+  }
+
+  // SetGroupMute set global group mute
+  rpc SetGroupMute(SetGroupMuteRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}/mute"
+      body: "*"
+    };
+  }
+
+  // PinGroupMessage pin group message
+  rpc PinGroupMessage(PinGroupMessageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/groups/{group_id}/pin"
+      body: "*"
+    };
+  }
+
+  // UnpinGroupMessage unpin group message
+  rpc UnpinGroupMessage(UnpinGroupMessageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/groups/{group_id}/pin/{message_id}"
+    };
+  }
+
+  // GetPinnedMessages get pinned group message list
+  rpc GetPinnedMessages(GetPinnedMessagesRequest) returns (GetPinnedMessagesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/groups/{group_id}/pins"
+    };
+  }
+
+  // -------------------------------QR code-----------------------------
+  // GetGroupQRCode get group QR code
+  rpc GetGroupQRCode(GetGroupQRCodeRequest) returns (GetGroupQRCodeResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/groups/{group_id}/qrcode"
+    };
+  }
+
+  // RefreshGroupQRCode refresh group QR code (invalidate old code)
+  rpc RefreshGroupQRCode(RefreshGroupQRCodeRequest) returns (GetGroupQRCodeResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/groups/{group_id}/qrcode/refresh"
+      body: "*"
+    };
+  }
+
+  // GetGroupPreviewByQRCode get group preview by QR code
+  rpc GetGroupPreviewByQRCode(GetGroupPreviewByQRCodeRequest) returns (GetGroupPreviewByQRCodeResponse);
+
+  // -------------------------------join requests-----------------------------
+  // JoinGroup join group (by request or direct join)
+  rpc JoinGroup(JoinGroupRequest) returns (JoinGroupResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/groups/{group_id}/join"
+      body: "*"
+    };
+  }
+
+  // GetJoinRequests get join group request list
+  rpc GetJoinRequests(GetJoinRequestsRequest) returns (GetJoinRequestsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/groups/{group_id}/requests"
+    };
+  }
+
+  // HandleJoinRequest handle join group request
+  rpc HandleJoinRequest(HandleJoinRequestRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/groups/{group_id}/requests/{request_id}"
+      body: "*"
+    };
+  }
+}
+
+// GroupRole the role of a user in a group
+enum GroupRole {
+  GROUP_ROLE_UNSPECIFIED = 0;
+  GROUP_ROLE_OWNER = 1;
+  GROUP_ROLE_ADMIN = 2;
+  GROUP_ROLE_MEMBER = 3;
+}
+
+// JoinRequestStatus the status of a group join request
+enum JoinRequestStatus {
+  JOIN_REQUEST_STATUS_UNSPECIFIED = 0;
+  JOIN_REQUEST_STATUS_PENDING = 1;
+  JOIN_REQUEST_STATUS_ACCEPTED = 2;
+  JOIN_REQUEST_STATUS_REJECTED = 3;
+}
+
+// ========== Internal call messages ==========
+
+// GetGroupInfoRequest get group info request
+message GetGroupInfoRequest {
+  string group_id = 1;
+  optional string user_id = 2;  // if provided, display_name reflects this user's group remark
+}
+
+// GetGroupInfoResponse get group info response
+message GetGroupInfoResponse {
+  string group_id = 1;
+  string name = 2;
+  string avatar = 3;
+  string announcement = 4;
+  string description = 13;
+  string owner_id = 5;
+  int32 member_count = 6;
+  int32 max_members = 7;
+  bool join_verify = 8;
+  bool is_muted = 9;
+  int32 status = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+  string display_name = 14;
+}
+
+// GetGroupMembersRequest get group members request
+message GetGroupMembersRequest {
+  string user_id = 1;
+  string group_id = 2;
+  optional int32 page = 3;
+  optional int32 page_size = 4;
+}
+
+// GetGroupMembersResponse get group members response
+message GetGroupMembersResponse {
+  repeated GroupMember members = 1;
+  int64 total = 2;
+}
+
+// GroupMember a group member
+message GroupMember {
+  string user_id = 1;
+  optional string group_nickname = 2;
+  GroupRole role = 3;
+  reserved 4;
+  google.protobuf.Timestamp joined_at = 5;
+  optional user.v1.UserInfo user_info = 6;
+  optional google.protobuf.Timestamp muted_until = 7;
+}
+
+// IsMemberRequest check if user is a member request
+message IsMemberRequest {
+  string group_id = 1;
+  string user_id = 2;
+}
+
+// IsMemberResponse check if user is a member response
+message IsMemberResponse {
+  bool is_member = 1;
+  GroupRole role = 2;
+}
+
+// ========== Gateway-facing messages ==========
+
+// GetUserGroupsRequest get user groups request
+message GetUserGroupsRequest {
+  string user_id = 1;
+  optional int64 last_update_time = 2;
+}
+
+// GetUserGroupsResponse get user groups response
+message GetUserGroupsResponse {
+  repeated GroupInfo groups = 1;
+  int64 update_time = 2;
+  int64 total = 3;
+}
+
+// GroupInfo a group info
+message GroupInfo {
+  string group_id = 1;
+  string name = 2;
+  string avatar = 3;
+  int32 member_count = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  string display_name = 6;
+}
+
+// CreateGroupRequest create group request
+message CreateGroupRequest {
+  string name = 1;
+  optional string avatar = 2;
+  repeated string member_ids = 3;
+  reserved 4, 5;
+}
+
+// CreateGroupResponse create group response
+message CreateGroupResponse {
+  string group_id = 1;
+  string name = 2;
+  optional string avatar = 3;
+  string owner_id = 4;
+  int32 member_count = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+// UpdateGroupRequest update group request
+message UpdateGroupRequest {
+  string group_id = 1;
+  optional string name = 2;
+  optional string avatar = 3;
+  optional string announcement = 4;
+  optional string description = 5;
+}
+
+// DissolveGroupRequest dissolve group request
+message DissolveGroupRequest {
+  string group_id = 1;
+}
+
+// InviteMembersRequest invite members request
+message InviteMembersRequest {
+  string group_id = 1;
+  repeated string invitee_ids = 2;
+}
+
+// RemoveMemberRequest remove member request
+message RemoveMemberRequest {
+  string group_id = 1;
+  string target_user_id = 2;
+}
+
+// QuitGroupRequest quit group request
+message QuitGroupRequest {
+  string group_id = 1;
+}
+
+// UpdateMemberRoleRequest update member role request
+message UpdateMemberRoleRequest {
+  string group_id = 1;
+  string target_user_id = 2;
+  GroupRole role = 3;
+}
+
+// UpdateMemberNicknameRequest update member nickname request
+message UpdateMemberNicknameRequest {
+  string group_id = 1;
+  string nickname = 2;
+}
+
+// TransferOwnershipRequest transfer ownership request
+message TransferOwnershipRequest {
+  string group_id = 1;
+  string new_owner_id = 2;
+}
+
+// JoinGroupRequest join group request
+message JoinGroupRequest {
+  string group_id = 1;
+  optional string message = 2;
+  optional string inviter_id = 3;
+}
+
+// JoinGroupResponse join group response
+message JoinGroupResponse {
+  bool need_verify = 1;
+  optional int64 request_id = 2;
+}
+
+// HandleJoinRequestRequest handle join request request
+message HandleJoinRequestRequest {
+  string group_id = 1;
+  int64 request_id = 2;
+  bool accept = 3;
+}
+
+// GetJoinRequestsRequest get join requests request
+message GetJoinRequestsRequest {
+  string group_id = 1;
+  optional JoinRequestStatus status = 2;
+}
+
+// GetJoinRequestsResponse get join requests response
+message GetJoinRequestsResponse {
+  repeated JoinRequest requests = 1;
+  int64 total = 2;
+}
+
+// JoinRequest a group join request
+message JoinRequest {
+  int64 id = 1;
+  string group_id = 2;
+  string user_id = 3;
+  optional string inviter_id = 4;
+  optional string message = 5;
+  JoinRequestStatus status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  optional user.v1.UserInfo user_info = 8;
+}
+
+// PinGroupMessageRequest pin group message request
+message PinGroupMessageRequest {
+  string group_id = 1;
+  string message_id = 2;
+}
+
+// UnpinGroupMessageRequest unpin group message request
+message UnpinGroupMessageRequest {
+  string group_id = 1;
+  string message_id = 2;
+}
+
+// GetPinnedMessagesRequest get pinned messages request
+message GetPinnedMessagesRequest {
+  string group_id = 1;
+}
+
+// PinnedMessage a pinned message in a group
+message PinnedMessage {
+  string message_id = 1;
+  string content = 2;
+  string pinned_by = 3;
+  int64 pinned_at = 4;
+  optional message.v1.ContentType content_type = 5;
+  optional int64 message_seq = 6;
+}
+
+// GetPinnedMessagesResponse get pinned messages response
+message GetPinnedMessagesResponse {
+  repeated PinnedMessage messages = 1;
+  int32 total = 2;
+  optional PinnedMessage top_message = 3;
+  int64 version = 4;
+}
+
+// SetGroupMuteRequest set group mute request
+message SetGroupMuteRequest {
+  string group_id = 1;
+  bool enabled = 2;
+}
+
+// MuteType the type of mute
+enum MuteType {
+  MUTE_TYPE_UNSPECIFIED = 0;
+  MUTE_TYPE_PERMANENT = 1;
+  MUTE_TYPE_TEMPORARY = 2;
+}
+
+// MuteMemberRequest mute member request
+message MuteMemberRequest {
+  string group_id = 1;
+  string target_user_id = 2;
+  MuteType type = 3;
+  int32 duration_minutes = 4;
+}
+
+// UnmuteMemberRequest unmute member request
+message UnmuteMemberRequest {
+  string group_id = 1;
+  string target_user_id = 2;
+}
+
+// UpdateGroupSettingsRequest update group settings request
+message UpdateGroupSettingsRequest {
+  string group_id = 1;
+  optional bool join_verify = 2;
+  optional bool allow_member_invite = 3;
+  optional bool allow_view_history = 4;
+  optional bool allow_add_friend = 5;
+  optional bool allow_member_modify = 6;
+  optional bool show_member_nickname = 7 [deprecated = true];
+}
+
+// GetGroupSettingsRequest get group settings request
+message GetGroupSettingsRequest {
+  string group_id = 1;
+}
+
+// GetGroupSettingsResponse get group settings response
+message GetGroupSettingsResponse {
+  string group_id = 1;
+  bool join_verify = 2;
+  bool allow_member_invite = 3;
+  bool allow_view_history = 4;
+  bool allow_add_friend = 5;
+  bool allow_member_modify = 6;
+  bool show_member_nickname = 7 [deprecated = true];
+}
+
+// ========== Group remark messages ==========
+
+// UpdateMemberRemarkRequest update member remark request
+message UpdateMemberRemarkRequest {
+  string group_id = 1;
+  string remark = 2;
+}
+
+// ========== Group QR code messages ==========
+
+// GetGroupQRCodeRequest get group QR code request
+message GetGroupQRCodeRequest {
+  string group_id = 1;
+}
+
+// GetGroupQRCodeResponse get group QR code response
+message GetGroupQRCodeResponse {
+  string token = 1;
+  string deep_link = 2;
+  int64 expire_at = 3;
+}
+
+// RefreshGroupQRCodeRequest refresh group QR code request
+message RefreshGroupQRCodeRequest {
+  string user_id = 1; // whitelisted endpoint (skips JWT), must carry user_id in request
+  string group_id = 2;
+}
+
+// GetGroupPreviewByQRCodeRequest get group preview by QR code request
+message GetGroupPreviewByQRCodeRequest {
+  string token = 1;
+}
+
+// GetGroupPreviewByQRCodeResponse get group preview by QR code response
+message GetGroupPreviewByQRCodeResponse {
+  string group_id = 1;
+  string name = 2;
+  string avatar = 3;
+  int32 member_count = 4;
+  bool need_verify = 5;
+}
+
+// JoinGroupByQRCodeRequest join group by QR code request
+message JoinGroupByQRCodeRequest {
+  string token = 1;
+}
+
+// JoinGroupByQRCodeResponse join group by QR code response
+message JoinGroupByQRCodeResponse {
+  bool joined = 1;
+  string group_id = 2;
+  bool need_verify = 3;
+  optional int64 request_id = 4;
+}

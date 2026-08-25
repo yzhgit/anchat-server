@@ -1,0 +1,32 @@
+code:
+  length: 6
+  expire_seconds: 300
+  max_attempts: 5
+  hash_secret: ${VERIFY_CODE_HASH_SECRET:change-me-for-production}
+  debug_fixed_code: ${VERIFY_DEBUG_FIXED_CODE:"123456"}
+  allow_dev_bypass: ${VERIFY_ALLOW_DEV_BYPASS:true}
+rate_limit:
+  target_per_minute: 1
+  target_per_day: 10
+  ip_per_hour: 200
+  device_per_day: 100
+sms:
+  provider: aliyun
+  aliyun:
+    access_key: ${SMS_ACCESS_KEY:}
+    access_secret: ${SMS_ACCESS_SECRET:}
+    sign_name: ${SMS_SIGN_NAME:AnyChat}
+    template_code: ${SMS_TEMPLATE_CODE:}
+  tencent:
+    secret_id: ${TENCENT_SECRET_ID:}
+    secret_key: ${TENCENT_SECRET_KEY:}
+    app_id: ${TENCENT_APP_ID:}
+    sign_name: ${SMS_SIGN_NAME:AnyChat}
+    template_id: ${SMS_TEMPLATE_ID:}
+email:
+  host: ${EMAIL_HOST:smtp.example.com}
+  port: ${EMAIL_PORT:587}
+  username: ${EMAIL_USERNAME:}
+  password: ${EMAIL_PASSWORD:}
+  from_name: ${EMAIL_FROM_NAME:AnyChat}
+  from_address: ${EMAIL_FROM_ADDRESS:noreply@anychat.com}

@@ -1,0 +1,115 @@
+# Promtail configuration for AnyChat IM System
+#
+# Collects logs from:
+# 1. Docker containers (infrastructure: postgres, consul, redis, nats,
+#    minio, livekit, prometheus, grafana, loki, promtail, tempo)
+# 2. Local service log files (mounted via /logs)
+#
+# Local services are started via `mage dev:*`. The magefile's runDevService()
+# automatically tees stdout to a log file at ${LOG_DIR}/<service>.log
+# (default: /tmp/anychat-logs/). docker-compose mounts ${LOG_DIR} to /logs
+# inside the Promtail container.
+#
+# Override log directory with: LOG_DIR=/var/log/anychat mage dev:<svc>
+#
+# Note: Every service started via mage dev:* needs its own static_configs
+# entry below so Grafana can filter by {service_name="<service>"}.
+# Add a new block when adding a new service or when starting one for the
+# first time. The __path__ must use the container path (/logs/<svc>.log),
+# NOT the host path.
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Collect logs from all Docker containers (infrastructure)
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'job'
+      - source_labels: ['__meta_docker_container_id']
+        target_label: 'container_id'
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: 'log_stream'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
+      # Loki Explore (Grafana) defaults to querying {service_name=~".+"}.
+      # Alias "service" -> "service_name" so both labels work.
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service_name'
+
+  # Collect logs from local service log files
+  # (gateway, user, realtime, etc. started via `mage dev:*`)
+  #
+  # Files are created by redirecting service stdout to files under
+  # /tmp/anychat-logs/ on the host, which is bind-mounted to /logs
+  # inside the Promtail container.
+  - job_name: local-services
+    static_configs:
+      # Each service started via mage dev:<name> writes to /logs/<name>.log
+      # inside the Promtail container. Promtail needs a per-file entry
+      # (not a glob) so relabel can assign the correct service_name label.
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/user.log
+          service_name: user
+          job: user
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/friend.log
+          service_name: friend
+          job: friend
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/group.log
+          service_name: group
+          job: group
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/message.log
+          service_name: message
+          job: message
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/conversation.log
+          service_name: conversation
+          job: conversation
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/file.log
+          service_name: file
+          job: file
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/rtc.log
+          service_name: rtc
+          job: rtc
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/push.log
+          service_name: push
+          job: push
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/realtime.log
+          service_name: realtime
+          job: realtime
+      - targets: ['localhost']
+        labels:
+          __path__: /logs/gateway.log
+          service_name: gateway
+          job: gateway

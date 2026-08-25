@@ -1,0 +1,54 @@
+# Tempo configuration for AnyChat IM System
+#
+# Tempo is Grafana's native trace storage, required for Grafana 13's
+# Traces Drilldown app (grafana-exploretraces-app). Jaeger UI is not
+# used in Grafana 13; Tempo is the Grafana-native trace backend.
+#
+# Tempo ingests OTLP on ports 4317 (gRPC) and 4318 (HTTP),
+# the same endpoints Jaeger used, so no service-side changes are needed.
+#
+# The metrics_generator block enables TraceQL RED metrics (Rate, Errors,
+# Duration) that Grafana's Traces Drilldown app queries via TraceQL.
+# Tempo 2.5 does NOT use an `enabled` field — the presence of the
+# metrics_generator block itself enables the feature.
+
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+ingester:
+  max_block_bytes: 1_048_576
+  max_block_duration: 5m
+
+compactor:
+  compaction:
+    compaction_window: 1h
+    max_block_bytes: 68_157_440
+    block_retention: 48h
+    compacted_block_retention: 0s
+
+metrics_generator:
+  storage:
+    path: /tmp/tempo/metrics
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_native_histograms: true
+  traces_storage:
+    path: /tmp/tempo/traces
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/traces
+    pool:
+      max_workers: 100
+      queue_depth: 10000

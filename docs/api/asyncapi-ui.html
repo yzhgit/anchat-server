@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AnyChat WebSocket API 文档 - AsyncAPI</title>
+  <style>
+    body { margin: 0; padding: 0; }
+    #root { max-width: 1460px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <asyncapi-component
+      schemaUrl="asyncapi.yaml"
+      cssImportPath="https://unpkg.com/@asyncapi/react-component@2.6.5/styles/default.min.css"
+      config='{"show":{"sidebar":true,"info":true,"servers":true,"operations":true,"messages":true,"schemas":true,"errors":true}}'
+    ></asyncapi-component>
+  </div>
+
+  <script src="https://unpkg.com/@asyncapi/web-component@2.6.5/lib/asyncapi-web-component.js" defer></script>
+</body>
+</html>

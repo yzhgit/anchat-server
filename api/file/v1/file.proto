@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package file.v1;
+
+option go_package = "flamingo/api/file/v1;v1";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// FileService file service
+service FileService {
+  // ========== Gateway HTTP APIs ==========
+
+  // GenerateUploadToken generate upload token
+  rpc GenerateUploadToken(GenerateUploadTokenRequest) returns (GenerateUploadTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/files/upload/token"
+      body: "*"
+    };
+  }
+
+  // CompleteUpload complete upload
+  rpc CompleteUpload(CompleteUploadRequest) returns (FileInfo) {
+    option (google.api.http) = {
+      post: "/api/v1/files/upload/complete"
+      body: "*"
+    };
+  }
+
+  // GenerateDownloadURL generate download URL
+  rpc GenerateDownloadURL(GenerateDownloadURLRequest) returns (GenerateDownloadURLResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/files/download/url"
+      body: "*"
+    };
+  }
+
+  // GetFileInfo get file info
+  rpc GetFileInfo(GetFileInfoRequest) returns (FileInfo) {
+    option (google.api.http) = {
+      get: "/api/v1/files/{file_id}"
+    };
+  }
+
+  // DeleteFile delete file
+  rpc DeleteFile(DeleteFileRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/files/{file_id}"
+    };
+  }
+
+  // ListUserFiles list user files
+  rpc ListUserFiles(ListUserFilesRequest) returns (ListUserFilesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/files"
+    };
+  }
+
+  // ========== Internal gRPC APIs ==========
+
+  // BatchGetFileInfo batch get file info
+  rpc BatchGetFileInfo(BatchGetFileInfoRequest) returns (BatchGetFileInfoResponse);
+}
+
+enum FileType {
+  FILE_TYPE_UNSPECIFIED = 0;
+  FILE_TYPE_IMAGE = 1;
+  FILE_TYPE_VIDEO = 2;
+  FILE_TYPE_AUDIO = 3;
+  FILE_TYPE_FILE = 4;
+}
+
+// GenerateUploadTokenRequest generate upload token request
+message GenerateUploadTokenRequest {
+  string file_name = 1;
+  int64 file_size = 2;
+  string mime_type = 3;
+  FileType file_type = 4;
+  int32 expires_hours = 5;
+}
+
+// GenerateUploadTokenResponse generate upload token response
+message GenerateUploadTokenResponse {
+  string file_id = 1;
+  string upload_url = 2;
+  int64 expires_at = 3;
+}
+
+// CompleteUploadRequest complete upload request
+message CompleteUploadRequest {
+  string file_id = 1;
+}
+
+// GenerateDownloadURLRequest generate download URL request
+message GenerateDownloadURLRequest {
+  string file_id = 1;
+  int32 expires_minutes = 2;
+}
+
+// GenerateDownloadURLResponse generate download URL response
+message GenerateDownloadURLResponse {
+  string download_url = 1;
+  int64 expires_at = 2;
+}
+
+// GetFileInfoRequest get file info request
+message GetFileInfoRequest {
+  string file_id = 1;
+}
+
+// DeleteFileRequest delete file request
+message DeleteFileRequest {
+  string file_id = 1;
+}
+
+// ListUserFilesRequest list user files request
+message ListUserFilesRequest {
+  FileType file_type = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+// ListUserFilesResponse list user files response
+message ListUserFilesResponse {
+  int64 total = 1;
+  repeated FileInfo files = 2;
+}
+
+// BatchGetFileInfoRequest batch get file info request (internal)
+message BatchGetFileInfoRequest {
+  string user_id = 1;
+  repeated string file_ids = 2;
+}
+
+// BatchGetFileInfoResponse batch get file info response
+message BatchGetFileInfoResponse {
+  map<string, FileInfo> files = 1;
+}
+
+// FileInfo file information
+message FileInfo {
+  string file_id = 1;
+  string file_name = 2;
+  FileType file_type = 3;
+  int64 file_size = 4;
+  string mime_type = 5;
+  string storage_path = 6;
+  string thumbnail_path = 7;
+  string bucket_name = 8;
+  int32 status = 9;
+  google.protobuf.Timestamp created_at = 10;
+  optional google.protobuf.Timestamp expires_at = 11;
+}

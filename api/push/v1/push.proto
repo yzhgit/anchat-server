@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package push.v1;
+
+option go_package = "flamingo/api/push/v1;v1";
+
+import "google/api/annotations.proto";
+
+// PushService push service
+// Sends system push notifications such as APNs/FCM to offline users (based on JPush)
+service PushService {
+  // SendPush send push notifications to a specified user list
+  // Called by other services or directly by gateway for offline push
+  rpc SendPush(SendPushRequest) returns (SendPushResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/push/send"
+      body: "*"
+    };
+  }
+}
+
+// PushType push type
+enum PushType {
+  PUSH_TYPE_UNSPECIFIED = 0;
+  PUSH_TYPE_MESSAGE_NEW = 1;
+  PUSH_TYPE_MESSAGE_MENTION = 2;
+  PUSH_TYPE_FRIEND_REQUEST = 3;
+  PUSH_TYPE_GROUP_INVITED = 4;
+  PUSH_TYPE_CALL_INVITE = 5;
+}
+
+// SendPushRequest push request
+message SendPushRequest {
+  // target user ID list
+  repeated string user_ids = 1;
+  // push title
+  string title = 2;
+  // push body
+  string content = 3;
+  // push type
+  PushType push_type = 4;
+  // additional data (key-value pairs), handled by client business logic
+  map<string, string> extras = 5;
+}
+
+// SendPushResponse push response
+message SendPushResponse {
+  // number of devices successfully pushed
+  int32 success_count = 1;
+  // number of devices failed to push
+  int32 failure_count = 2;
+  // JPush message ID
+  string msg_id = 3;
+}

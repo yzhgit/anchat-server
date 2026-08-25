@@ -1,0 +1,364 @@
+asyncapi: 2.6.0
+
+info:
+  title: AnyChat Realtime WebSocket API
+  version: 1.0.0
+  description: |
+    AnyChat Realtime WebSocket 实时通信 API。
+
+    客户端通过 WebSocket 连接到 Realtime 服务，可以：
+    - 发送即时消息
+    - 接收实时通知（好友、群组、消息等）
+    - 维持心跳连接
+
+    **认证方式**: 由于 WebSocket 协议不支持自定义 Header，JWT Token 通过 URL query 参数传递。
+
+defaultContentType: application/json
+
+servers:
+  local:
+    url: localhost:8081
+    protocol: ws
+    description: 本地开发环境
+
+channels:
+  /ws:
+    bindings:
+      ws:
+        query:
+          type: object
+          properties:
+            token:
+              type: string
+              description: JWT Access Token（必须）
+          required:
+            - token
+    subscribe:
+      summary: 接收服务端推送的消息和通知
+      operationId: receiveMessages
+      message:
+        oneOf:
+          - $ref: '#/components/messages/Pong'
+          - $ref: '#/components/messages/MessageSent'
+          - $ref: '#/components/messages/Notification'
+    publish:
+      summary: 客户端发送消息
+      operationId: sendMessages
+      message:
+        oneOf:
+          - $ref: '#/components/messages/Ping'
+          - $ref: '#/components/messages/MessageSend'
+          - $ref: '#/components/messages/MessageTyping'
+
+components:
+  messages:
+    Ping:
+      messageId: ping
+      name: ping
+      title: 客户端心跳
+      summary: 客户端发送心跳检测消息
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: ping
+        required:
+          - type
+        example:
+          type: ping
+
+    Pong:
+      messageId: pong
+      name: pong
+      title: 服务端心跳响应
+      summary: 服务端回复心跳消息
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: pong
+          payload:
+            description: 无 payload
+        required:
+          - type
+        example:
+          type: pong
+          payload: null
+
+    MessageSend:
+      messageId: messageSend
+      name: message.send
+      title: 发送即时消息
+      summary: 客户端发送即时消息到会话
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: message.send
+          payload:
+            type: object
+            properties:
+              conversationId:
+                type: string
+                description: 会话 ID
+              conversationType:
+                type: string
+                enum: [private, group]
+                description: 会话类型
+              contentType:
+                type: string
+                enum: [text, image, audio, video, file, location, custom]
+                description: 内容类型
+              content:
+                type: string
+                description: 消息内容
+              replyTo:
+                type: string
+                description: 回复的消息 ID（可选）
+              atUsers:
+                type: array
+                items:
+                  type: string
+                description: "@提及的用户 ID 列表（可选）"
+              localId:
+                type: string
+                description: 客户端本地消息 ID，用于去重（可选）
+            required:
+              - conversationId
+              - conversationType
+              - contentType
+              - content
+        required:
+          - type
+          - payload
+        example:
+          type: message.send
+          payload:
+            conversationId: conv-123
+            conversationType: private
+            contentType: text
+            content: "你好，世界！"
+            localId: local-uuid-12345
+
+    MessageSent:
+      messageId: messageSent
+      name: message.sent
+      title: 消息发送确认
+      summary: 服务端确认消息已发送成功
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: message.sent
+          payload:
+            type: object
+            properties:
+              messageId:
+                type: string
+                description: 服务端生成的消息 ID
+              sequence:
+                type: integer
+                format: int64
+                description: 会话内序列号
+              timestamp:
+                type: integer
+                format: int64
+                description: 消息时间戳（Unix seconds）
+              localId:
+                type: string
+                description: 客户端本地消息 ID（如果发送时提供）
+            required:
+              - messageId
+              - sequence
+              - timestamp
+        required:
+          - type
+          - payload
+        example:
+          type: message.sent
+          payload:
+            messageId: msg-67890
+            sequence: 42
+            timestamp: 1708329600
+            localId: local-uuid-12345
+
+    MessageTyping:
+      messageId: messageTyping
+      name: message.typing
+      title: 发送正在输入状态
+      summary: 客户端上报单聊输入状态（输入中/停止输入）
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: message.typing
+          payload:
+            type: object
+            properties:
+              conversationId:
+                type: string
+                description: 会话 ID（仅支持单聊）
+              typing:
+                type: boolean
+                description: true=正在输入，false=停止输入
+              ttlSeconds:
+                type: integer
+                format: int32
+                description: 状态有效期（秒，可选，默认 5）
+              clientTs:
+                type: integer
+                format: int64
+                description: 客户端时间戳（Unix seconds，可选）
+            required:
+              - conversationId
+              - typing
+        required:
+          - type
+          - payload
+        example:
+          type: message.typing
+          payload:
+            conversationId: single_u1_u2
+            typing: true
+            ttlSeconds: 5
+            clientTs: 1744123200
+
+    Notification:
+      messageId: notification
+      name: notification
+      title: 实时通知
+      summary: 服务端推送的各类实时通知
+      description: |
+        包含以下通知类型：
+
+        **好友相关**: `friend.request` / `friend.request_handled` / `friend.deleted` / `friend.remark_updated` / `friend.blacklist_changed`
+
+        **群组相关**: `group.invited` / `group.member_joined` / `group.member_left` / `group.info_updated` / `group.role_changed` / `group.muted` / `group.disbanded`
+
+        **消息相关**: `message.new` / `message.read_receipt` / `message.recalled` / `message.typing` / `message.mentioned`
+
+        **用户相关**: `user.profile_updated` / `user.friend_profile_changed` / `user.status_changed`
+
+        **认证相关**: `auth.force_logout` / `auth.unusual_login` / `auth.password_changed`
+
+        **文件相关**: `file.upload_completed` / `file.processing` / `file.expiring`
+
+        **推送相关**: `push.delivery_status` / `push.token_invalid`
+
+        **音视频相关**: `livekit.call_invite` / `livekit.call_status` / `livekit.call_rejected`
+
+        **同步相关**: `sync.request` / `sync.completed`
+
+        **管理相关**: `admin.announcement` / `admin.user_banned` / `admin.maintenance`
+
+        **会话相关**: `conversation.unread_updated` / `conversation.pin_updated` / `conversation.deleted` / `conversation.mute_updated`
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: notification
+          payload:
+            type: object
+            properties:
+              notificationType:
+                type: string
+                description: 通知类型
+                enum:
+                  - friend.request
+                  - friend.request_handled
+                  - friend.deleted
+                  - friend.remark_updated
+                  - friend.blacklist_changed
+                  - group.invited
+                  - group.member_joined
+                  - group.member_left
+                  - group.info_updated
+                  - group.role_changed
+                  - group.muted
+                  - group.disbanded
+                  - message.new
+                  - message.read_receipt
+                  - message.recalled
+                  - message.typing
+                  - message.mentioned
+                  - user.profile_updated
+                  - user.friend_profile_changed
+                  - user.status_changed
+                  - auth.force_logout
+                  - auth.unusual_login
+                  - auth.password_changed
+                  - file.upload_completed
+                  - file.processing
+                  - file.expiring
+                  - push.delivery_status
+                  - push.token_invalid
+                  - livekit.call_invite
+                  - livekit.call_status
+                  - livekit.call_rejected
+                  - sync.request
+                  - sync.completed
+                  - admin.announcement
+                  - admin.user_banned
+                  - admin.maintenance
+                  - conversation.unread_updated
+                  - conversation.pin_updated
+                  - conversation.deleted
+                  - conversation.mute_updated
+              timestamp:
+                type: integer
+                format: int64
+                description: 通知时间戳（Unix seconds）
+              data:
+                type: object
+                description: 通知具体数据，根据 notificationType 不同结构不同
+                additionalProperties: true
+            required:
+              - notificationType
+              - timestamp
+              - data
+        required:
+          - type
+          - payload
+      examples:
+        - name: newMessage
+          summary: 新消息通知
+          payload:
+            type: notification
+            payload:
+              notificationType: message.new
+              timestamp: 1708329600
+              data:
+                messageId: msg-111
+                conversationId: conv-222
+                senderId: user-333
+                contentType: text
+                content: "你好吗？"
+                sequence: 43
+        - name: friendRequest
+          summary: 好友请求通知
+          payload:
+            type: notification
+            payload:
+              notificationType: friend.request
+              timestamp: 1708329601
+              data:
+                requestId: req-444
+                fromUserId: user-555
+                message: "你好，我是张三"
+        - name: groupInvited
+          summary: 群组邀请通知
+          payload:
+            type: notification
+            payload:
+              notificationType: group.invited
+              timestamp: 1708329602
+              data:
+                groupId: group-666
+                inviterId: user-777
+                groupName: "项目讨论组"

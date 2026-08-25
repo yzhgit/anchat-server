@@ -1,0 +1,363 @@
+syntax = "proto3";
+
+package message.v1;
+
+option go_package = "flamingo/api/message/v1;v1";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// MessageService message service
+service MessageService {
+  // ========== Gateway HTTP APIs ==========
+
+  // SendMessage send message
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/messages"
+      body: "*"
+    };
+  }
+
+  // SendTyping send typing status
+  rpc SendTyping(SendTypingRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/messages/typing"
+      body: "*"
+    };
+  }
+
+  // GetMessages get message list
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/messages"
+    };
+  }
+
+  // GetMessagesBefore get messages before anchor
+  rpc GetMessagesBefore(GetMessagesBeforeRequest) returns (GetMessagesBeforeResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/messages/before"
+    };
+  }
+
+  // GetMessagesAfter get messages after anchor
+  rpc GetMessagesAfter(GetMessagesAfterRequest) returns (GetMessagesAfterResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/messages/after"
+    };
+  }
+
+  // GetMessagesAroundAnchor get messages around anchor
+  rpc GetMessagesAroundAnchor(GetMessagesAroundAnchorRequest) returns (GetMessagesAroundAnchorResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/messages/around"
+    };
+  }
+
+  // GetFirstUnreadAnchor get first unread message anchor
+  rpc GetFirstUnreadAnchor(GetFirstUnreadAnchorRequest) returns (GetFirstUnreadAnchorResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/messages/first-unread"
+    };
+  }
+
+  // GetMessageById get message by ID
+  rpc GetMessageById(GetMessageByIdRequest) returns (Message) {
+    option (google.api.http) = {
+      get: "/api/v1/messages/{message_id}"
+    };
+  }
+
+  // RecallMessage recall a message
+  rpc RecallMessage(RecallMessageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/messages/{message_id}/recall"
+      body: "*"
+    };
+  }
+
+  // DeleteMessage delete a message
+  rpc DeleteMessage(DeleteMessageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/messages/{message_id}"
+    };
+  }
+
+  // MarkAsRead mark messages as read
+  rpc MarkAsRead(MarkAsReadRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/messages/read"
+      body: "*"
+    };
+  }
+
+  // MarkMessagesRead mark messages as read by message IDs
+  rpc MarkMessagesRead(MarkMessagesReadRequest) returns (MarkMessagesReadResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/messages/bulk-read"
+      body: "*"
+    };
+  }
+
+  // AckReadTriggers acknowledge burn-after-reading triggers
+  rpc AckReadTriggers(AckReadTriggersRequest) returns (AckReadTriggersResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/messages/ack-read"
+      body: "*"
+    };
+  }
+
+  // GetUnreadCount get unread count
+  rpc GetUnreadCount(GetUnreadCountRequest) returns (GetUnreadCountResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/messages/unread-count"
+    };
+  }
+
+  // GetReadReceipts get read receipts
+  rpc GetReadReceipts(GetReadReceiptsRequest) returns (GetReadReceiptsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/messages/{message_id}/receipts"
+    };
+  }
+
+  // GetConversationSequence get conversation sequence
+  rpc GetConversationSequence(GetConversationSequenceRequest) returns (GetConversationSequenceResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/conversations/{conversation_id}/sequence"
+    };
+  }
+
+  // SearchMessages search messages
+  rpc SearchMessages(SearchMessagesRequest) returns (SearchMessagesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/messages/search"
+    };
+  }
+}
+
+enum ContentType {
+  CONTENT_TYPE_UNSPECIFIED = 0;
+  CONTENT_TYPE_TEXT = 1;
+  CONTENT_TYPE_IMAGE = 2;
+  CONTENT_TYPE_VIDEO = 3;
+  CONTENT_TYPE_AUDIO = 4;
+  CONTENT_TYPE_FILE = 5;
+  CONTENT_TYPE_STICKER = 6;
+  CONTENT_TYPE_EMOTICON = 7;
+  CONTENT_TYPE_LOCATION = 8;
+  CONTENT_TYPE_RECALL = 9;
+  CONTENT_TYPE_CONTACT = 10;
+  CONTENT_TYPE_SYSTEM = 11;
+}
+
+// SendMessageRequest send message request
+message SendMessageRequest {
+  string conversation_id = 1;
+  ContentType content_type = 2;
+  string content = 3;
+  optional Message reply_to = 4;
+  repeated string at_users = 5;
+  string local_id = 6;
+}
+
+// SendMessageResponse send message response
+message SendMessageResponse {
+  Message message = 1;
+}
+
+// Message message
+message Message {
+  string message_id = 1;
+  string conversation_id = 2;
+  string sender_id = 3;
+  ContentType content_type = 4;
+  string content = 5;
+  optional Message reply_to = 6;
+  repeated string at_users = 7;
+  google.protobuf.Timestamp timestamp = 8;
+  int64 seq = 9;
+  string local_id = 10;
+  bool is_read = 11;
+  bool is_deleted = 12;
+  int64 read_at = 13;
+}
+
+// SendTypingRequest send typing request
+message SendTypingRequest {
+  string conversation_id = 1;
+  bool typing = 2;
+  int32 ttl_seconds = 3;
+  string device_id = 4;
+}
+
+// GetMessagesRequest get messages request
+message GetMessagesRequest {
+  string conversation_id = 1;
+  int32 limit = 2;
+}
+
+// GetMessagesResponse get messages response
+message GetMessagesResponse {
+  repeated Message messages = 1;
+  bool has_more = 2;
+}
+
+// GetMessagesBeforeRequest get messages before anchor
+message GetMessagesBeforeRequest {
+  string conversation_id = 1;
+  string anchor_message_id = 2;
+  int32 limit = 3;
+}
+
+// GetMessagesBeforeResponse
+message GetMessagesBeforeResponse {
+  repeated Message messages = 1;
+  bool has_more = 2;
+}
+
+// GetMessagesAfterRequest get messages after anchor
+message GetMessagesAfterRequest {
+  string conversation_id = 1;
+  string anchor_message_id = 2;
+  int32 limit = 3;
+}
+
+// GetMessagesAfterResponse
+message GetMessagesAfterResponse {
+  repeated Message messages = 1;
+  bool has_more = 2;
+}
+
+// GetMessagesAroundAnchorRequest
+message GetMessagesAroundAnchorRequest {
+  string conversation_id = 1;
+  string anchor_message_id = 2;
+  int32 before = 3;
+  int32 after = 4;
+}
+
+// GetMessagesAroundAnchorResponse
+message GetMessagesAroundAnchorResponse {
+  repeated Message messages = 1;
+  bool has_more_before = 2;
+  bool has_more_after = 3;
+}
+
+// GetFirstUnreadAnchorRequest
+message GetFirstUnreadAnchorRequest {
+  string conversation_id = 1;
+}
+
+// GetFirstUnreadAnchorResponse
+message GetFirstUnreadAnchorResponse {
+  optional string first_unread_message_id = 1;
+  int64 unread_count = 2;
+  optional Message first_unread_message = 3;
+}
+
+// GetMessageByIdRequest
+message GetMessageByIdRequest {
+  string message_id = 1;
+}
+
+// RecallMessageRequest recall message
+message RecallMessageRequest {
+  string message_id = 1;
+}
+
+// DeleteMessageRequest delete message
+message DeleteMessageRequest {
+  string message_id = 1;
+}
+
+// MarkAsReadRequest mark as read
+message MarkAsReadRequest {
+  string conversation_id = 1;
+  optional int64 last_read_seq = 2;
+}
+
+// MarkMessagesReadRequest mark messages as read by IDs
+message MarkMessagesReadRequest {
+  string conversation_id = 1;
+  repeated string message_ids = 2;
+}
+
+// MarkMessagesReadResponse
+message MarkMessagesReadResponse {
+  int32 marked_count = 1;
+  repeated string message_ids = 2;
+}
+
+// AckReadTriggersRequest
+message AckReadTriggersRequest {
+  repeated AckReadEvent events = 1;
+}
+
+// AckReadEvent
+message AckReadEvent {
+  string conversation_id = 1;
+  string message_id = 2;
+  google.protobuf.Timestamp acked_at = 3;
+}
+
+// AckReadTriggersResponse
+message AckReadTriggersResponse {
+  int32 acked_count = 1;
+  repeated string message_ids = 2;
+}
+
+// GetUnreadCountRequest
+message GetUnreadCountRequest {
+  string conversation_id = 1;
+  optional int64 last_read_seq = 2;
+}
+
+// GetUnreadCountResponse
+message GetUnreadCountResponse {
+  int64 unread_count = 1;
+}
+
+// GetReadReceiptsRequest
+message GetReadReceiptsRequest {
+  string conversation_id = 1;
+  string message_id = 2;
+}
+
+// GetReadReceiptsResponse
+message GetReadReceiptsResponse {
+  repeated ReadReceipt receipts = 1;
+}
+
+// ReadReceipt
+message ReadReceipt {
+  string user_id = 1;
+  google.protobuf.Timestamp read_at = 2;
+  bool is_read = 3;
+}
+
+// GetConversationSequenceRequest
+message GetConversationSequenceRequest {
+  string conversation_id = 1;
+}
+
+// GetConversationSequenceResponse
+message GetConversationSequenceResponse {
+  int64 current_seq = 1;
+}
+
+// SearchMessagesRequest
+message SearchMessagesRequest {
+  string keyword = 1;
+  optional string conversation_id = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+// SearchMessagesResponse
+message SearchMessagesResponse {
+  int64 total = 1;
+  repeated Message messages = 2;
+}

@@ -1,0 +1,50 @@
+# Grafana datasource provisioning for AnyChat IM System
+# Mounts this file into Grafana at:
+#   /etc/grafana/provisioning/datasources/datasources.yml
+
+apiVersion: 1
+
+datasources:
+  # ---- Prometheus (metrics) ----
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    # Prometheus uses network_mode: host (not on bridge), so Grafana
+    # reaches it via the "prometheus" hostname mapped to host-gateway
+    # in docker-compose.yml's extra_hosts.
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    jsonData:
+      timeInterval: 15s
+
+  # ---- Loki (logs) ----
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: false
+    editable: true
+    jsonData:
+      maxLines: 1000
+
+  # ---- Tempo (traces) ----
+  # Grafana 13's Explore Traces app (grafana-exploretraces-app) only
+  # supports Tempo, not Jaeger. Tempo ingests OTLP on the same ports
+  # (4317 gRPC, 4318 HTTP) that Jaeger used, so no service changes needed.
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    isDefault: false
+    editable: true
+    jsonData:
+      tracesToLogs:
+        datasourceUid: P8E80F9AEF21F6940
+      tracesToMetrics:
+        datasourceUid: PBFA97CFB590B2093
+        queries:
+          - name: "Service Rate"
+            query: 'sum(rate(traces_spanmetrics_calls_total{service_name="$service"}[5m]))'
+          - name: "Service Errors"
+            query: 'sum(rate(traces_spanmetrics_calls_total{service_name="$service",spankind="$spankind",status_code="STATUS_CODE_ERROR"}[5m]))'
